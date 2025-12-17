@@ -1,0 +1,2 @@
+/Users/rtl/Documents/PROJECTS/yemek_tarifi_app/android/app/.cxx/RelWithDebInfo/714r416q/x86/CMakeFiles/edit_cache.dir
+/Users/rtl/Documents/PROJECTS/yemek_tarifi_app/android/app/.cxx/RelWithDebInfo/714r416q/x86/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,64 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.whatshouldieattoday.mobile">
+
+    <!-- Google Ads için Gerekli İzinler -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/> 
+
+    <application
+        android:label="What Should I Eat Today"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="false"> <!-- HTTP gerekmiyorsa bunu false yap veya kaldır -->
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+
+            <!-- Uygulamayı başlatmak için MAIN/LAUNCHER intent-filter -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- Deep Link Destekleme (App Links) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                        android:scheme="https"
+                        android:host="what-should-i-eat-today-7be98.web.app"
+                        android:pathPrefix="/recipe"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Google Ads için AdMob App ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8279650993144801~3170721729" />
+
+        <!-- Flutter için gerekli meta-data -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+
+    <!-- Paket Görünürlüğü İçin Gerekli (Uygulamanın diğer uygulamalara erişebilmesi için) -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain" />
+        </intent>
+    </queries>
+
+</manifest>

@@ -1,0 +1,5 @@
+Open Data Commons Open Database License (ODbL) v1.0
+Full license text: https://opendatacommons.org/licenses/odbl/1-0/
+
+Applies to: Culinary Recipes Dataset (DOI: 10.5281/zenodo.15169428).
+Notes: Keep attribution and license notices. Do not imply endorsement by the dataset authors or Zenodo. If the modified database is ever distributed publicly, release it under ODbL 1.0 and provide access/download.

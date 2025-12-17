@@ -1,0 +1,41 @@
+import com.android.build.gradle.AppExtension
+import com.android.build.gradle.LibraryExtension
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+subprojects { subproject ->
+    subproject.plugins.withId("com.android.application") {
+        subproject.extensions.configure(AppExtension) { ext ->
+            ext.compileSdkVersion(36)
+            ext.defaultConfig { cfg ->
+                cfg.targetSdk = 36
+            }
+        }
+    }
+
+    subproject.plugins.withId("com.android.library") {
+        subproject.extensions.configure(LibraryExtension) { ext ->
+            ext.compileSdk = 36
+            ext.defaultConfig { cfg ->
+                cfg.targetSdk = 36
+            }
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
