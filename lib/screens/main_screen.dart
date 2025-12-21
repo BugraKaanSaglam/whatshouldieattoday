@@ -148,7 +148,6 @@ class _MainScreenState extends State<MainScreen> {
                   }
                   if (item.destination == null) return;
                   await Navigator.push(context, MaterialPageRoute(builder: (context) => item.destination!));
-                  _updateBlinkingState();
                 },
             ),
           ),

@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:yemek_tarifi_app/backend/backend.dart';
 import 'package:yemek_tarifi_app/classes/food_class.dart';
 import 'package:yemek_tarifi_app/classes/food_image.dart';
 import 'package:yemek_tarifi_app/classes/ingredient_class.dart';
