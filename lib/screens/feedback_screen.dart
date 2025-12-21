@@ -39,6 +39,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   Future<void> _submitFeedback() async {
+    if (_isSubmitting) return;
     final String email = _emailController.text.trim();
     final String message = _messageController.text.trim();
 
@@ -47,19 +48,37 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       return;
     }
     if (email.isEmpty || !_isValidEmail(email)) {
-      _showError('Please enter a valid email address.');
+      _showError('invalidEmail'.tr());
       return;
     }
 
     setState(() => _isSubmitting = true);
 
-    await BackendService.submitFeedback(recipeId: widget.recipeId, email: email, message: message);
+    try {
+      await BackendService.submitFeedback(recipeId: widget.recipeId, email: email, message: message);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(children: [const Icon(Icons.check_circle, color: Colors.green), const SizedBox(width: 10), Text('thankyouForYourFeedback'.tr())]),
+          backgroundColor: Colors.green.withValues(alpha: 0.9),
+          elevation: 10,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      Navigator.pop(context);
+    } catch (_) {
+      if (!mounted) return;
+      _showError('feedbackSubmitFailed'.tr());
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
 
-    setState(() => _isSubmitting = false);
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Row(children: [const Icon(Icons.check_circle, color: Colors.green), const SizedBox(width: 10), Text('thankyouForYourFeedback'.tr())]), backgroundColor: Colors.green.withValues(alpha: 0.9), elevation: 10, duration: const Duration(seconds: 2)));
-
-    Navigator.pop(context);
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _messageController.dispose();
+    super.dispose();
   }
 
   @override

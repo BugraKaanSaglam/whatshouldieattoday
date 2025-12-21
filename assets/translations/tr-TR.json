@@ -91,6 +91,8 @@
     "send": "Gönder",
     "thankyouForYourFeedback": "Bildiriminiz İçin Teşekkürler!",
     "yourFeedbackWillBeReview": "Geri Bildiriminiz Değerlendirilecektir",
+    "invalidEmail": "Lütfen geçerli bir eposta adresi girin.",
+    "feedbackSubmitFailed": "Geri bildiriminiz gönderilemedi. Lütfen tekrar deneyin.",
     "pleaseStartSearch": "Lütfen Arama Yaparak Başlayın",
     "error": "Hata",
     "OK": "Tamam",
@@ -133,5 +135,6 @@
     "updateCurrentVersion": "Kullandığınız sürüm: {version}",
     "updateOnPlayStore": "Play Store'da güncelle",
     "updateOnAppStore": "App Store'da güncelle",
-    "updateNow": "Hemen güncelle"
+    "updateNow": "Hemen güncelle",
+    "closeAppHint": "Uygulamayı uygulama değiştiricisinden kapatın."
 }

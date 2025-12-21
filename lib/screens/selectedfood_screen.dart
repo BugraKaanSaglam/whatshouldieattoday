@@ -1,5 +1,3 @@
-// ignore_for_file: must_be_immutable
-
 import 'dart:developer';
 import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -23,10 +21,10 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SelectedFoodScreen extends StatefulWidget {
-  late Food food;
-  late int recipeId = 0;
-  late String category = "";
-  SelectedFoodScreen(this.food, {super.key, required this.recipeId, required this.category});
+  final Food food;
+  final int recipeId;
+  final String category;
+  const SelectedFoodScreen(this.food, {super.key, required this.recipeId, required this.category});
   @override
   State<SelectedFoodScreen> createState() => _SelectedFoodScreenState();
 }

@@ -35,7 +35,7 @@ class FoodApplicationDataBase extends ChangeNotifier {
   Map<String, dynamic> toMap() {
     return {
       'Ver': ver,
-      'languageCode': languageCode,
+      'LanguageCode': languageCode,
       'InitialIngredients': jsonEncode(initialIngredients.map((e) => e.toMap()).toList()),
       'Favorites': jsonEncode(favorites.map((e) => e.toMap()).toList()),
     };
@@ -45,7 +45,7 @@ class FoodApplicationDataBase extends ChangeNotifier {
   factory FoodApplicationDataBase.fromMap(Map<dynamic, dynamic> map) {
     return FoodApplicationDataBase(
       ver: map['Ver'] ?? 0,
-      languageCode: map['languageCode'] ?? 0,
+      languageCode: map['LanguageCode'] ?? map['languageCode'] ?? 0,
       initialIngredients: (jsonDecode(map['InitialIngredients']) as List<dynamic>).map((e) => IngredientClass.fromMap(e)).toList(),
       favorites: (map.containsKey('Favorites') && map['Favorites'] != null) ? (jsonDecode(map['Favorites']) as List<dynamic>).map((e) => Favorite.fromMap(e)).toList() : [],
     );

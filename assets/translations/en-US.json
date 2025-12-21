@@ -91,6 +91,8 @@
     "send": "Send",
     "thankyouForYourFeedback": "Thank You For Your Feedback!",
     "yourFeedbackWillBeReview": "Your Feedback Will Be Reviewed",
+    "invalidEmail": "Please enter a valid email address.",
+    "feedbackSubmitFailed": "We could not send your feedback. Please try again.",
     "pleaseStartSearch": "Please Start Search",
     "error": "Error",
     "OK": "OK",
@@ -134,5 +136,6 @@
     "updateCurrentVersion": "Your version: {version}",
     "updateOnPlayStore": "Update on Play Store",
     "updateOnAppStore": "Update on App Store",
-    "updateNow": "Update now"
+    "updateNow": "Update now",
+    "closeAppHint": "Close the app from the app switcher."
 }

@@ -2,14 +2,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:yemek_tarifi_app/backend/backend.dart';
+import 'package:provider/provider.dart';
 import 'package:yemek_tarifi_app/classes/food_class.dart';
 import 'package:yemek_tarifi_app/classes/food_image.dart';
 import 'package:yemek_tarifi_app/classes/ingredient_class.dart';
 import 'package:yemek_tarifi_app/functions/checkstring.dart';
 import 'package:yemek_tarifi_app/global/global_variables.dart';
 import 'package:yemek_tarifi_app/functions/foodselection_screen_functions.dart';
-import '../classes/foodselection_dto.dart';
+import '../viewmodels/food_selection_viewmodel.dart';
 import '../functions/form_decorations.dart';
 import '../global/global_functions.dart';
 import 'selectedfood_screen.dart';
@@ -24,20 +24,12 @@ class FoodSelectionScreen extends StatefulWidget {
 }
 
 class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
-  final FoodSelectionDTO formDTO = FoodSelectionDTO();
-  List<Food> _filteredFoodList = [];
-  bool isSearchedOnce = false;
-  final int _pageSize = 20;
-  int _currentPage = 0;
-  bool _hasMore = true;
-  bool _isLoadingMore = false;
+  late final FoodSelectionViewModel _viewModel;
   late final ScrollController _scrollController;
-  final bool _filterDebugEnabled = false;
-  int? _totalMatches;
 
   @override
   void initState() {
-    formDTO.ingredientList = globalDataBase!.initialIngredients;
+    _viewModel = FoodSelectionViewModel()..init(initialIngredients: globalDataBase!.initialIngredients);
     _scrollController = ScrollController()..addListener(_onScroll);
     super.initState();
   }
@@ -46,21 +38,27 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return globalScaffold(
-      appBar: globalAppBar('selectionScreen'.tr(), context),
-      body: _selectIngredientsBody(context),
+    return ChangeNotifierProvider.value(
+      value: _viewModel,
+      child: Consumer<FoodSelectionViewModel>(
+        builder: (context, viewModel, _) => globalScaffold(
+          appBar: globalAppBar('selectionScreen'.tr(), context),
+          body: _selectIngredientsBody(context, viewModel),
+        ),
+      ),
     );
   }
 
-  Widget _selectIngredientsBody(BuildContext context) {
+  Widget _selectIngredientsBody(BuildContext context, FoodSelectionViewModel viewModel) {
     return Column(
       children: [
-        _buildFilterHero(context),
+        _buildFilterHero(context, viewModel),
         const SizedBox(height: 16),
         Expanded(
           child: Padding(
@@ -69,7 +67,7 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
               duration: const Duration(milliseconds: 350),
               switchInCurve: Curves.easeOutCubic,
               switchOutCurve: Curves.easeInCubic,
-              child: _buildFoodResults(context),
+              child: _buildFoodResults(context, viewModel),
             ),
           ),
         ),
@@ -77,11 +75,12 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
     );
   }
 
-  Widget _buildFilterHero(BuildContext context) {
+  Widget _buildFilterHero(BuildContext context, FoodSelectionViewModel viewModel) {
     final theme = Theme.of(context);
-    final List<IngredientClass> selectedIngredients = formDTO.ingredientList;
-    final bool hasResults = _filteredFoodList.isNotEmpty;
-    final String totalLabel = '${_totalMatches ?? _filteredFoodList.length} ${'recipes'.tr()}';
+    final List<IngredientClass> selectedIngredients = viewModel.selectedIngredients;
+    final bool hasResults = viewModel.filteredFoodList.isNotEmpty;
+    final int totalCount = viewModel.totalMatches ?? viewModel.filteredFoodList.length;
+    final String totalLabel = '$totalCount ${'recipes'.tr()}';
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 20, 12, 4),
       child: Container(
@@ -99,7 +98,7 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
             Row(
               children: [
                 Expanded(child: Text('clickFilterForMore'.tr(), style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.9)))),
-                if (isSearchedOnce)
+                if (viewModel.isSearchedOnce)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(12)),
@@ -132,7 +131,7 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (context) => Dialog.fullscreen(backgroundColor: Colors.transparent, child: _filterContent(context)),
+                      builder: (context) => Dialog.fullscreen(backgroundColor: Colors.transparent, child: _filterContent(context, viewModel)),
                     );
                   },
                   icon: const Icon(Icons.filter_list_rounded),
@@ -148,32 +147,36 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
     );
   }
 
-  Widget _buildFoodResults(BuildContext context) {
-    final bool isEmpty = _filteredFoodList.isEmpty;
+  Widget _buildFoodResults(BuildContext context, FoodSelectionViewModel viewModel) {
+    final bool isEmpty = viewModel.filteredFoodList.isEmpty;
     return RefreshIndicator(
-      onRefresh: _refreshResults,
+      onRefresh: () => _refreshResults(viewModel),
       displacement: 24,
       child: isEmpty
           ? ListView(
               physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
               padding: const EdgeInsets.only(bottom: 32, top: 24),
               children: [
-                _EmptyState(key: ValueKey<bool>(isSearchedOnce), icon: isSearchedOnce ? Icons.search_off_rounded : Icons.local_dining, message: isSearchedOnce ? 'tryAnotherFilter'.tr() : 'pleaseStartSearch'.tr()),
+                _EmptyState(
+                  key: ValueKey<bool>(viewModel.isSearchedOnce),
+                  icon: viewModel.isSearchedOnce ? Icons.search_off_rounded : Icons.local_dining,
+                  message: viewModel.isSearchedOnce ? 'tryAnotherFilter'.tr() : 'pleaseStartSearch'.tr(),
+                ),
               ],
             )
           : ListView.separated(
               controller: _scrollController,
-              itemCount: _filteredFoodList.length + (_isLoadingMore ? 1 : 0),
+              itemCount: viewModel.filteredFoodList.length + (viewModel.isLoadingMore ? 1 : 0),
               padding: const EdgeInsets.only(bottom: 32),
               physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
               itemBuilder: (BuildContext context, int index) {
-                if (index >= _filteredFoodList.length) {
+                if (index >= viewModel.filteredFoodList.length) {
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
-                final Food food = _filteredFoodList[index];
+                final Food food = viewModel.filteredFoodList[index];
                 return FoodListItem(food: food, index: index);
               },
               separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 16),
@@ -181,7 +184,7 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
     );
   }
 
-  Widget _filterContent(BuildContext context) {
+  Widget _filterContent(BuildContext context, FoodSelectionViewModel viewModel) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
@@ -213,8 +216,8 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
                       customCard('foodSelectionText1'.tr()),
                       const SizedBox(height: 20),
                       IngredientSearchDropdown(
-                        dropdownSelectedItems: formDTO.ingredientList,
-                        onItemsChanged: (List<IngredientClass> selectedItems) => setState(() => formDTO.ingredientList = selectedItems),
+                        dropdownSelectedItems: viewModel.selectedIngredients,
+                        onItemsChanged: viewModel.updateSelectedIngredients,
                       ),
                     ],
                   ),
@@ -225,7 +228,7 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () async => await startFiltering(context),
+                    onPressed: () async => await _handleStartFiltering(context, viewModel),
                     icon: const Icon(Icons.play_arrow_rounded),
                     label: Text('startSearch'.tr(), style: buttonTextStyle(fontSize: 16)),
                   ),
@@ -238,123 +241,38 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
     );
   }
 
-  Future<void> startFiltering(BuildContext context) async {
-    isSearchedOnce = true;
-    _currentPage = 0;
-    _hasMore = true;
-    _isLoadingMore = false;
-    _totalMatches = null;
+  Future<void> _handleStartFiltering(BuildContext context, FoodSelectionViewModel viewModel) async {
     showDialog(context: context, barrierDismissible: false, builder: (BuildContext context) => const _FilteringSpinnerDialog());
-    try {
-      final List<String> selectedIngredients = formDTO.ingredientList.map((e) => e.Ingredient).toList();
-      try {
-        final int? count = await BackendService.fetchRecipesCount(ingredients: selectedIngredients);
-        if (mounted) setState(() => _totalMatches = count);
-      } catch (e) {
-        _logFilter('count rpc failed', e.toString());
-      }
-
-      final filteredFoods = await fetchFilteredFoods(formDTO, offset: 0, limit: _pageSize);
-      if (!mounted) return;
-      setState(() {
-        _filteredFoodList = filteredFoods;
-        _currentPage = 1;
-        _hasMore = filteredFoods.length == _pageSize;
-        _totalMatches ??= filteredFoods.length;
-      });
-      Navigator.of(context).pop();
+    final String? error = await viewModel.startFiltering();
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    if (error == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('success'.tr()), duration: const Duration(seconds: 1)));
       Navigator.of(context).pop();
-    } catch (e) {
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('error'.tr()),
-          content: Text((e is Exception) ? e.toString().replaceFirst('Exception: ', '') : 'unknownError'.tr()),
-          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('OK'.tr()))],
-        ),
-      );
+      return;
     }
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('error'.tr()),
+        content: Text(error),
+        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('OK'.tr()))],
+      ),
+    );
   }
 
-  Future<void> _loadMore() async {
-    if (_isLoadingMore || !_hasMore || !isSearchedOnce) return;
-    setState(() => _isLoadingMore = true);
-    try {
-      final nextOffset = _currentPage * _pageSize;
-      final newFoods = await fetchFilteredFoods(formDTO, offset: nextOffset, limit: _pageSize);
-      if (!mounted) return;
-      setState(() {
-        _filteredFoodList.addAll(newFoods);
-        _currentPage++;
-        _hasMore = newFoods.length == _pageSize;
-        _isLoadingMore = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isLoadingMore = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('error'.tr()), duration: const Duration(seconds: 2)));
-    }
+  Future<void> _loadMore(FoodSelectionViewModel viewModel) async {
+    await viewModel.loadMore();
   }
 
-  Future<void> _refreshResults() async {
-    if (!isSearchedOnce) return;
-    try {
-      final List<String> selectedIngredients = formDTO.ingredientList.map((e) => e.Ingredient).toList();
-      try {
-        final int? count = await BackendService.fetchRecipesCount(ingredients: selectedIngredients);
-        if (mounted) setState(() => _totalMatches = count);
-      } catch (e) {
-        _logFilter('count rpc failed refresh', e.toString());
-      }
-      final refreshed = await fetchFilteredFoods(formDTO, offset: 0, limit: _pageSize);
-      if (!mounted) return;
-      setState(() {
-        _filteredFoodList = refreshed;
-        _currentPage = 1;
-        _hasMore = refreshed.length == _pageSize;
-        _totalMatches ??= refreshed.length;
-      });
-    } catch (_) {
-      // Sessizce yoksay: pull-to-refresh sırasında hata kullanıcıyı bloklamasın.
-    }
+  Future<void> _refreshResults(FoodSelectionViewModel viewModel) async {
+    await viewModel.refreshResults();
   }
 
   void _onScroll() {
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      _loadMore();
+      _loadMore(_viewModel);
     }
-  }
-
-  void _logFilter(String message, Object? data) {
-    if (!_filterDebugEnabled) return;
-    debugPrint('[Filter] $message${data != null ? ' | $data' : ''}');
-  }
-
-  Future<List<Food>> fetchFilteredFoods(FoodSelectionDTO formDTO, {required int offset, required int limit}) async {
-    final List<String> selectedIngredients = formDTO.ingredientList.map((e) => e.Ingredient).toList();
-    if (selectedIngredients.isEmpty) throw Exception('noIngSelected'.tr());
-    final List<Food> recipes = await BackendService.fetchRecipes(ingredients: selectedIngredients, offset: offset, limit: limit);
-    // Backend zaten ingredients_tokens ile filtreliyor; burada ek filtre uygulama.
-    List<Food> filtered = List<Food>.from(recipes);
-
-    // Sort by Category then Name for consistent ordering
-    filtered.sort((a, b) {
-      final String catA = a.categories.isNotEmpty ? a.categories.first.toLowerCase() : '';
-      final String catB = b.categories.isNotEmpty ? b.categories.first.toLowerCase() : '';
-      final int catCompare = catA.compareTo(catB);
-      if (catCompare != 0) return catCompare;
-      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
-    });
-
-    if (_filterDebugEnabled) {
-      _logFilter('backend returned', {'count': recipes.length, 'offset': offset, 'limit': limit});
-      _logFilter('after client filter', {'count': filtered.length});
-    }
-
-    return filtered;
   }
 }
 

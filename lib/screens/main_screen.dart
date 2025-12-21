@@ -2,14 +2,16 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:yemek_tarifi_app/backend/backend.dart';
+import 'package:provider/provider.dart';
 import 'package:yemek_tarifi_app/screens/credits_screen.dart';
 import 'package:yemek_tarifi_app/screens/favorites_screen.dart';
 import 'package:yemek_tarifi_app/screens/foodselection_screen.dart';
 import 'package:yemek_tarifi_app/screens/initialingredientsselector_screen.dart';
 import 'package:yemek_tarifi_app/screens/settings_screen.dart';
 import 'package:yemek_tarifi_app/services/maintenance_service.dart';
+import '../viewmodels/main_viewmodel.dart';
 import '../global/global_functions.dart';
 import '../global/global_variables.dart';
 import '../global/media_query_size.dart';
@@ -25,53 +27,24 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  late bool isBlinking;
-  bool isPopupShown = false;
-  int? _totalRecipeCount;
-  bool _isFetchingRecipes = false;
+  late final MainViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _updateBlinkingState();
-    _scheduleInitialPopup();
-    _fetchTotalRecipeCount();
+    _viewModel = MainViewModel()..init();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _viewModel.scheduleInitialPopup(() async {
+        if (!mounted) return;
+        await showDialog(context: context, builder: (context) => warntoAddInitIngredientsPopup(context));
+      });
+    });
   }
 
   @override
   void dispose() {
+    _viewModel.dispose();
     super.dispose();
-  }
-
-  void _updateBlinkingState() {
-    setState(() {
-      isBlinking = isFirstLaunch && !isPopupShown;
-    });
-  }
-
-  Future<void> _fetchTotalRecipeCount() async {
-    if (_isFetchingRecipes) return;
-    setState(() => _isFetchingRecipes = true);
-    try {
-      final int? count = await BackendService.fetchTotalRecipesCount();
-      if (!mounted) return;
-      setState(() => _totalRecipeCount = count);
-    } catch (_) {
-      // silently ignore for now
-    } finally {
-      if (mounted) setState(() => _isFetchingRecipes = false);
-    }
-  }
-
-  void _scheduleInitialPopup() {
-    if (!isFirstLaunch || isPopupShown) return;
-    isPopupShown = true;
-    Future.delayed(Durations.extralong4, () async {
-      if (!mounted) return;
-      await showDialog(context: context, builder: (context) => warntoAddInitIngredientsPopup(context));
-      isFirstLaunch = false;
-      _updateBlinkingState();
-    });
   }
 
   @override
@@ -80,16 +53,22 @@ class _MainScreenState extends State<MainScreen> {
     screenWidth = SizerMediaQuery.getW(context);
     final bool isMaintenance = widget.maintenanceStatus?.isActive == true;
     final String maintenanceMessage = _maintenanceMessage(context);
-    return globalScaffold(
-      appBar: globalAppBar('appName'.tr(), context, hasBackButton: false),
-      body: mainBody(context, isMaintenance),
-      bottomAppbar: isMaintenance ? _buildMaintenanceBar(context, maintenanceMessage) : null,
+    return ChangeNotifierProvider.value(
+      value: _viewModel,
+      child: Consumer<MainViewModel>(
+        builder: (context, viewModel, _) => globalScaffold(
+          appBar: globalAppBar('appName'.tr(), context, hasBackButton: false),
+          body: mainBody(context, isMaintenance, viewModel),
+          bottomAppbar: isMaintenance ? _buildMaintenanceBar(context, maintenanceMessage) : null,
+        ),
+      ),
     );
   }
 
-  Widget mainBody(BuildContext context, bool isMaintenance) {
+  Widget mainBody(BuildContext context, bool isMaintenance, MainViewModel viewModel) {
     final int ingredientsCount = globalDataBase?.initialIngredients.length ?? 0;
-    final String totalRecipesLabel = _totalRecipeCount == null ? 'loading'.tr() : '$_totalRecipeCount ${'recipes'.tr()}';
+    final int? totalCount = viewModel.totalRecipeCount;
+    final String totalRecipesLabel = totalCount == null ? 'loading'.tr() : '$totalCount ${'recipes'.tr()}';
 
     final List<_MenuItemData> menuItems = [
       _MenuItemData(
@@ -133,16 +112,14 @@ class _MainScreenState extends State<MainScreen> {
         title: 'exit'.tr(),
         icon: Icons.exit_to_app_outlined,
         gradientColors: const [Color(0xFFEF4444), Color(0xFFDC2626)],
-        onTapOverride: () => exit(0),
+        onTapOverride: _handleExit,
       ),
     ];
-    //* Showing Kitchen Popup
-    _scheduleInitialPopup();
 
-    return SingleChildScrollView(padding: const EdgeInsets.fromLTRB(20, 24, 20, 120), child: _buildMenuGrid(menuItems));
+    return SingleChildScrollView(padding: const EdgeInsets.fromLTRB(20, 24, 20, 120), child: _buildMenuGrid(menuItems, viewModel.isBlinking));
   }
 
-  Widget _buildMenuGrid(List<_MenuItemData> menuItems) {
+  Widget _buildMenuGrid(List<_MenuItemData> menuItems, bool isBlinking) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -182,6 +159,20 @@ class _MainScreenState extends State<MainScreen> {
 
   String _maintenanceMessage(BuildContext context) {
     return 'maintenanceBody'.tr();
+  }
+
+  void _handleExit() {
+    if (Platform.isAndroid) {
+      SystemNavigator.pop();
+      return;
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('closeAppHint'.tr()),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   Widget _buildMaintenanceBar(BuildContext context, String message) {

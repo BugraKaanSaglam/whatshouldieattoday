@@ -1,16 +1,15 @@
 // ignore_for_file: use_build_context_synchronously, invalid_use_of_protected_member
 
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:yemek_tarifi_app/functions/checkstring.dart';
-import 'package:yemek_tarifi_app/global/global_variables.dart';
-import '../classes/favorites_class.dart';
 import '../classes/food_class.dart';
 import '../global/global_functions.dart';
 import 'selectedfood_screen.dart';
 import '../classes/food_image.dart';
 import '../global/app_theme.dart';
+import '../viewmodels/favorites_viewmodel.dart';
 import '../backend/backend.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -21,58 +20,39 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  List<Favorite> favorites = [];
-  List<Food?> loadedFoods = [];
-  bool isLoading = true;
+  late final FavoritesViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _fetchFavorites();
+    _viewModel = FavoritesViewModel();
+    _viewModel.loadFavorites();
   }
 
-  Future<void> _fetchFavorites() async {
-    setState(() {
-      favorites = List.from(globalDataBase?.favorites ?? []);
-      loadedFoods = List<Food?>.filled(favorites.length, null);
-      isLoading = true;
-    });
-
-    for (int i = 0; i < favorites.length; i++) {
-      try {
-        loadedFoods[i] = await _fetchSingleFood(favorites[i].recipeId);
-      } catch (_) {
-        loadedFoods[i] = null;
-      }
-    }
-
-    if (!mounted) return;
-    setState(() => isLoading = false);
-  }
-
-  Future<Food?> _fetchSingleFood(int recipeId) async {
-    final supabase = Supabase.instance.client;
-    try {
-      final List<Map<String, dynamic>> data = await supabase.from(recipesTableName).select().eq('RecipeId', recipeId).limit(1);
-      if (data.isEmpty) return null;
-      return Food.fromMap(data.first);
-    } catch (_) {
-      try {
-        final List<Map<String, dynamic>> data = await supabase.from(recipesTableName).select().eq('Id', recipeId).limit(1);
-        if (data.isEmpty) return null;
-        return Food.fromMap(data.first);
-      } catch (e) {
-        throw Exception('Error parsing food data: $e');
-      }
-    }
+  @override
+  void dispose() {
+    _viewModel.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return globalScaffold(appBar: globalAppBar('favorites'.tr(), context), body: favoritesBody(context));
+    return ChangeNotifierProvider.value(
+      value: _viewModel,
+      child: Consumer<FavoritesViewModel>(
+        builder: (context, viewModel, _) => globalScaffold(
+          appBar: globalAppBar('favorites'.tr(), context),
+          body: favoritesBody(context, viewModel),
+        ),
+      ),
+    );
   }
 
-  Widget favoritesBody(BuildContext context) {
+  Widget favoritesBody(BuildContext context, FavoritesViewModel viewModel) {
+    final favorites = viewModel.favorites;
+    final loadedFoods = viewModel.loadedFoods;
+    final isLoading = viewModel.isLoading;
+
     if (favorites.isEmpty) {
       return Center(child: Text('noFavoritesYet'.tr(), style: Theme.of(context).textTheme.bodyLarge));
     }
@@ -94,7 +74,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             child: const Center(child: CircularProgressIndicator()),
           );
         }
-        return FavoriteFoodListItem(food: food, onUpdateFavorites: _fetchFavorites);
+        return FavoriteFoodListItem(food: food, onUpdateFavorites: viewModel.loadFavorites);
       },
     );
   }

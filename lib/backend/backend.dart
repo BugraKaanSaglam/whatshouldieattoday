@@ -71,9 +71,7 @@ class BackendService {
     }
 
     if (rpcFailed) {
-      // Fall back to basic select if RPC is missing or fails for other reasons.
-      rawResults = await _client.from(recipesTableName).select().range(offset, rangeEnd);
-      _log('fetchRecipes table fallback count', data: rawResults.length);
+      rawResults = await _fetchRecipesFallback(ingredients: ingredients, offset: offset, limit: limit);
     }
 
     final List<Food> validRecipes = <Food>[];
@@ -86,6 +84,30 @@ class BackendService {
       }
     }
     return validRecipes;
+  }
+
+  static Future<List<dynamic>> _fetchRecipesFallback({
+    required List<String> ingredients,
+    required int offset,
+    required int limit,
+  }) async {
+    final int rangeEnd = offset + limit - 1;
+    const List<String> fallbackColumns = ['ingredients_tokens', 'ingredients', 'ingredients_raw'];
+
+    for (final column in fallbackColumns) {
+      try {
+        _log('fetchRecipes fallback try', data: {'column': column, 'ingredients': ingredients});
+        final dynamic response = await _client.from(recipesTableName).select().contains(column, ingredients).range(offset, rangeEnd);
+        if (response is List) {
+          _log('fetchRecipes fallback ok', data: {'column': column, 'count': response.length});
+          return response;
+        }
+      } catch (e) {
+        _log('fetchRecipes fallback failed', data: {'column': column, 'error': e.toString()});
+      }
+    }
+
+    throw Exception('Tarif araması geçici olarak kullanılamıyor. Lütfen daha sonra tekrar deneyin.');
   }
 
   /// Fetch only total count via RPC (requires SQL function `get_recipes_count`).
