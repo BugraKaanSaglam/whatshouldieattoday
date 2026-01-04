@@ -100,16 +100,28 @@ class _IngredientSearchDropdownState extends State<IngredientSearchDropdown> {
                           useSafeArea: true,
                         ),
                         validationBuilder: (ctx, items) {
-                          final popupState = ctx.findAncestorStateOfType<DropdownSearchPopupState<IngredientClass>>();
-                          return SafeArea(
-                            minimum: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton(
-                                onPressed: () => popupState?.onValidate(),
-                                child: Text('OK'.tr()),
-                              ),
-                            ),
+                          return Builder(
+                            builder: (innerContext) {
+                              final popupState = innerContext.findAncestorStateOfType<DropdownSearchPopupState<IngredientClass>>();
+                              return SafeArea(
+                                minimum: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      if (popupState != null) {
+                                        popupState.onValidate();
+                                        return;
+                                      }
+                                      setStateDropdown(() => selectedItems = List.from(items));
+                                      widget.onItemsChanged(List.from(items));
+                                      Navigator.of(innerContext).pop();
+                                    },
+                                    child: Text('OK'.tr()),
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
                         searchFieldProps: TextFieldProps(
