@@ -137,5 +137,19 @@
     "updateOnPlayStore": "Update on Play Store",
     "updateOnAppStore": "Update on App Store",
     "updateNow": "Update now",
-    "closeAppHint": "Close the app from the app switcher."
+    "closeAppHint": "Close the app from the app switcher.",
+    "scrollForMore": "Scroll for more",
+    "cuisineLabel": "Cuisine",
+    "linkCopied": "Link copied: {}",
+    "shareRecipeMessage": "You should try this recipe! 👉 {}",
+    "shareFallback": "Sharing failed, link copied to clipboard.",
+    "onboardingSkip": "Skip",
+    "onboardingNext": "Next",
+    "onboardingGetStarted": "Get started",
+    "onboardingTitle1": "Find recipes fast",
+    "onboardingBody1": "Select ingredients and get matches in seconds.",
+    "onboardingTitle2": "Your kitchen, saved",
+    "onboardingBody2": "Store staples once and reuse them anytime.",
+    "onboardingTitle3": "Favorites and sharing",
+    "onboardingBody3": "Save recipes you love and share with friends."
 }

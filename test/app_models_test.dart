@@ -1,24 +1,24 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yemek_tarifi_app/classes/favorites_class.dart';
-import 'package:yemek_tarifi_app/classes/food_class.dart';
-import 'package:yemek_tarifi_app/classes/ingredient_class.dart';
-import 'package:yemek_tarifi_app/database/food_application_database.dart';
+import 'package:yemek_tarifi_app/core/database/food_application_database.dart';
+import 'package:yemek_tarifi_app/features/favorites/models/favorite.dart';
+import 'package:yemek_tarifi_app/features/recipes/models/food.dart';
+import 'package:yemek_tarifi_app/features/recipes/models/ingredient.dart';
 
 void main() {
-  test('FoodApplicationDataBase maps LanguageCode consistently', () {
-    final db = FoodApplicationDataBase(
+  test('FoodApplicationDatabase maps LanguageCode consistently', () {
+    final db = FoodApplicationDatabase(
       ver: 0,
       languageCode: 1,
-      initialIngredients: [IngredientClass(Ingredient: 'salt', Ingredient_tr: 'tuz')],
+      initialIngredients: [Ingredient(name: 'salt', nameTr: 'tuz')],
       favorites: [Favorite(recipeId: 1, category: 'Dinner')],
     );
 
     final map = db.toMap();
     expect(map['LanguageCode'], 1);
 
-    final restored = FoodApplicationDataBase.fromMap({
+    final restored = FoodApplicationDatabase.fromMap({
       'Ver': 0,
       'LanguageCode': 1,
       'InitialIngredients': jsonEncode([
@@ -50,6 +50,6 @@ void main() {
     expect(food.recipeId, 42);
     expect(food.categories, ['Dinner']);
     expect(food.cuisines, ['Italian']);
-    expect(food.ingredients.first.Ingredient, 'chopped tomato');
+    expect(food.ingredients.first.name, 'chopped tomato');
   });
 }

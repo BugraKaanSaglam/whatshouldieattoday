@@ -28,7 +28,7 @@ def flutterVersionCode = (pubspec?.code ?: localProperties.getProperty("flutter.
 def flutterVersionName = pubspec?.name ?: localProperties.getProperty("flutter.versionName", "1.0")
 
 android {
-    namespace "com.whatshouldieattoday.mobile"
+    namespace = "com.whatshouldieattoday.mobile"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 
@@ -42,7 +42,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.whatshouldieattoday.mobile"
+        applicationId = "com.whatshouldieattoday.mobile"
         minSdkVersion = flutter.minSdkVersion
         targetSdk = 36
         versionCode = flutterVersionCode
@@ -66,9 +66,9 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-            shrinkResources false
+            signingConfig = signingConfigs.release
+            minifyEnabled = false
+            shrinkResources = false
         }
     }
 }

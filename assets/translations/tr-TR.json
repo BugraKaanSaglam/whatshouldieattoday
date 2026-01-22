@@ -136,5 +136,19 @@
     "updateOnPlayStore": "Play Store'da güncelle",
     "updateOnAppStore": "App Store'da güncelle",
     "updateNow": "Hemen güncelle",
-    "closeAppHint": "Uygulamayı uygulama değiştiricisinden kapatın."
+    "closeAppHint": "Uygulamayı uygulama değiştiricisinden kapatın.",
+    "scrollForMore": "Daha fazlası için kaydır",
+    "cuisineLabel": "Mutfak",
+    "linkCopied": "Link kopyalandı: {}",
+    "shareRecipeMessage": "Bu tarifi denemelisin! 👉 {}",
+    "shareFallback": "Paylaşım açılamadı, link panoya kopyalandı.",
+    "onboardingSkip": "Geç",
+    "onboardingNext": "İleri",
+    "onboardingGetStarted": "Başla",
+    "onboardingTitle1": "Hızlı tarif bul",
+    "onboardingBody1": "Malzemeleri seç, saniyeler içinde eşleşmeleri gör.",
+    "onboardingTitle2": "Mutfağın kayıtlı",
+    "onboardingBody2": "Temel malzemeleri bir kez kaydet, her zaman kullan.",
+    "onboardingTitle3": "Favoriler ve paylaşım",
+    "onboardingBody3": "Sevdiğin tarifleri kaydet, arkadaşlarınla paylaş."
 }
