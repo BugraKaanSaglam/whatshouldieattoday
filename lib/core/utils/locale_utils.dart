@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:yemek_tarifi_app/core/enums/language_enum.dart';
+import 'package:yemek_tarifi_app/enums/language_enum.dart';
 
 Language detectDeviceLanguage() {
   final Locale deviceLocale = PlatformDispatcher.instance.locale;

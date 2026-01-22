@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yemek_tarifi_app/core/database/food_application_database.dart';
-import 'package:yemek_tarifi_app/features/favorites/models/favorite.dart';
-import 'package:yemek_tarifi_app/features/recipes/models/food.dart';
-import 'package:yemek_tarifi_app/features/recipes/models/ingredient.dart';
+import 'package:yemek_tarifi_app/database/food_application_database.dart';
+import 'package:yemek_tarifi_app/models/favorites/favorite.dart';
+import 'package:yemek_tarifi_app/models/recipe/food.dart';
+import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
 
 void main() {
   test('FoodApplicationDatabase maps LanguageCode consistently', () {

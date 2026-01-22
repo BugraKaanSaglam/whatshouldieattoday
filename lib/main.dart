@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:yemek_tarifi_app/app/app.dart';
-import 'package:yemek_tarifi_app/core/config/supabase_config.dart';
-import 'package:yemek_tarifi_app/core/constants/app_globals.dart';
-import 'package:yemek_tarifi_app/core/data/default_ingredients.dart';
-import 'package:yemek_tarifi_app/core/database/db_helper.dart';
-import 'package:yemek_tarifi_app/core/database/food_application_database.dart';
-import 'package:yemek_tarifi_app/core/enums/language_enum.dart';
+import 'package:yemek_tarifi_app/app.dart';
+import 'package:yemek_tarifi_app/core/configs/supabase_config.dart';
+import 'package:yemek_tarifi_app/global/app_globals.dart';
+import 'package:yemek_tarifi_app/global/default_ingredients.dart';
+import 'package:yemek_tarifi_app/database/db_helper.dart';
+import 'package:yemek_tarifi_app/database/food_application_database.dart';
+import 'package:yemek_tarifi_app/enums/language_enum.dart';
 import 'package:yemek_tarifi_app/core/utils/locale_utils.dart';
-import 'package:yemek_tarifi_app/features/favorites/models/favorite.dart';
-import 'package:yemek_tarifi_app/features/recipes/models/ingredient.dart';
+import 'package:yemek_tarifi_app/models/favorites/favorite.dart';
+import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

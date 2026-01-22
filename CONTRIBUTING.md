@@ -26,7 +26,7 @@ Thanks for your interest in contributing!
 ## Guidelines
 
 - Keep changes focused and incremental.
-- Use the existing feature-based folder structure under `lib/features/`.
+- Use the layered structure under `lib/` (`models/`, `providers/`, `screens/`, `widgets/`, `core/`, `global/`).
 - Update localization files for user-facing strings.
 - Avoid committing generated files unless required by the project (Freezed/json_serializable outputs are committed here).
 

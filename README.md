@@ -9,7 +9,7 @@ A Flutter recipe discovery app that helps users find meals based on their pantry
 - Onboarding flow for first-time users
 - Turkish/English localization
 - Supabase data source + local SQLite cache
-- Feature-based folder structure
+- Layered folder structure (models/providers/screens/widgets)
 
 ## Tech Stack
 
@@ -23,9 +23,15 @@ A Flutter recipe discovery app that helps users find meals based on their pantry
 
 ```
 lib/
-  app/                 App bootstrap + router
-  core/                Shared services, theme, db, utilities
-  features/            Feature-based screens, models, viewmodels
+  core/                Configs, network services, utils, extensions
+  database/            Local DB helpers and storage models
+  enums/               App enums
+  global/              Theme, globals, app-wide constants
+  models/              Domain models (recipe, favorites, onboarding, bootstrap)
+  providers/           ViewModels (Provider)
+  screens/             UI screens
+  widgets/             Reusable widgets
+  gen/                 Generated assets
 ```
 
 ## Getting Started
@@ -37,7 +43,7 @@ lib/
    flutter pub get
    ```
 
-3. Configure Supabase (see `supabase.env` and `lib/core/config/supabase_config.dart`).
+3. Configure Supabase (see `supabase.env` and `lib/core/configs/supabase_config.dart`).
 4. Run the app:
 
    ```bash

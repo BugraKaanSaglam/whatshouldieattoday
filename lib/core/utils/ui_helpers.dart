@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:yemek_tarifi_app/core/utils/form_decorations.dart';
-import 'package:yemek_tarifi_app/core/widgets/app_scaffold.dart';
-import 'package:yemek_tarifi_app/core/widgets/main_app_bar.dart';
-import 'package:yemek_tarifi_app/core/theme/app_theme.dart';
+import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
+import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
+import 'package:yemek_tarifi_app/global/app_theme.dart';
 
 @Deprecated('Use MainAppBar instead.')
 PreferredSizeWidget globalAppBar(String title, BuildContext _, {bool hasBackButton = true}) {

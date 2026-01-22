@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:yemek_tarifi_app/core/constants/app_images.dart';
+import 'package:yemek_tarifi_app/global/app_images.dart';
 
 class AssetManager {
   static Future<void> addAssetsToList<T extends Enum, TDTO>(List<TDTO> targetList, List<T> enumValues, dynamic Function(AssetImage image, T enumValue) objectBuilder) async {

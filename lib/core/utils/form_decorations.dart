@@ -1,7 +1,7 @@
 //* Decorations
 import 'package:flutter/material.dart';
 
-import 'package:yemek_tarifi_app/core/theme/app_theme.dart';
+import 'package:yemek_tarifi_app/global/app_theme.dart';
 
 InputDecoration formDecoration() {
   final OutlineInputBorder baseBorder = OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide(color: Colors.blueGrey.shade100));
