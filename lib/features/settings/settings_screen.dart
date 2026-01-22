@@ -48,14 +48,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('settingsTitle'.tr(), style: theme.textTheme.headlineMedium),
-                    const SizedBox(height: 8),
-                    Text('select_language'.tr(), style: theme.textTheme.bodyMedium?.copyWith(color: const Color(0xFF475569))),
-                  ],
-                ),
                 const SizedBox(height: 24),
                 languageDropDownFormField(),
               ],
