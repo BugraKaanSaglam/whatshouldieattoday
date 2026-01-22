@@ -34,6 +34,10 @@ lib/
   gen/                 Generated assets
 ```
 
+## System Overview
+
+See `docs/SYSTEM_OVERVIEW.md` for a high-level wiring and data flow map.
+
 ## Getting Started
 
 1. Install Flutter (stable channel).
