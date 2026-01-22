@@ -21,7 +21,6 @@ A Flutter recipe discovery app that helps users find meals based on their pantry
 
 ## Project Structure
 
-```
 lib/
   core/                Configs, network services, utils, extensions
   database/            Local DB helpers and storage models
@@ -32,7 +31,6 @@ lib/
   screens/             UI screens
   widgets/             Reusable widgets
   gen/                 Generated assets
-```
 
 ## System Overview
 

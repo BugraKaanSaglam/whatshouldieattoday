@@ -281,7 +281,7 @@ File: `lib/screens/force_update/force_update_screen.dart`
 
 ## 9) Key flows (end to end)
 
-## Onboarding
+## Onboarding2
 
 1) App loads `OnboardingService.hasSeenOnboarding` in bootstrap.
 2) Router redirects to `/onboarding` if not seen.
@@ -293,7 +293,7 @@ File: `lib/screens/force_update/force_update_screen.dart`
 2) `FoodSelectionViewModel` calls `BackendService.fetchRecipes` (RPC or fallback).
 3) Results are paged and rendered.
 
-## Favorites
+## Favorites2
 
 1) User toggles favorite on recipe detail.
 2) Favorite list saved in SQLite.
