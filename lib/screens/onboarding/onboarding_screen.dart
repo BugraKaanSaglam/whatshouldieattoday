@@ -31,9 +31,7 @@ class OnboardingScreen extends StatelessWidget {
                         Expanded(
                           child: Text(
                             'appName'.tr(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
+                            style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(fontWeight: FontWeight.w700),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -57,7 +55,20 @@ class OnboardingScreen extends StatelessWidget {
                       controller: viewModel.pageController,
                       onPageChanged: viewModel.updateIndex,
                       itemCount: viewModel.steps.length,
-                      itemBuilder: (context, index) => _OnboardingPage(step: viewModel.steps[index]),
+                      itemBuilder: (context, index) =>
+                          _OnboardingPage(step: viewModel.steps[index]),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 4),
+                    child: Text(
+                      'onboardingProgress'.tr(
+                        args: [
+                          '${viewModel.currentIndex + 1}',
+                          '${viewModel.steps.length}',
+                        ],
+                      ),
+                      style: Theme.of(context).textTheme.labelMedium,
                     ),
                   ),
                   Padding(
@@ -66,25 +77,43 @@ class OnboardingScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
                         viewModel.steps.length,
-                        (index) => _IndicatorDot(isActive: index == viewModel.currentIndex),
+                        (index) => _IndicatorDot(
+                          isActive: index == viewModel.currentIndex,
+                        ),
                       ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (viewModel.isLastPage) {
-                            await viewModel.complete();
-                            onFinished();
-                            return;
-                          }
-                          await viewModel.nextPage();
-                        },
-                        child: Text(
-                          viewModel.isLastPage ? 'onboardingGetStarted'.tr() : 'onboardingNext'.tr(),
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.88),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 16,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (viewModel.isLastPage) {
+                              await viewModel.complete();
+                              onFinished();
+                              return;
+                            }
+                            await viewModel.nextPage();
+                          },
+                          child: Text(
+                            viewModel.isLastPage
+                                ? 'onboardingGetStarted'.tr()
+                                : 'onboardingNext'.tr(),
+                          ),
                         ),
                       ),
                     ),
@@ -172,16 +201,39 @@ class _OnboardingPage extends StatelessWidget {
             child: Icon(step.icon, size: 70, color: Colors.white),
           ),
           const SizedBox(height: 32),
-          Text(
-            step.titleKey.tr(),
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            step.descriptionKey.tr(),
-            style: theme.textTheme.bodyLarge?.copyWith(color: const Color(0xFF475569)),
-            textAlign: TextAlign.center,
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.9),
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 18,
+                  offset: const Offset(0, 12),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Text(
+                  step.titleKey.tr(),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  step.descriptionKey.tr(),
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: const Color(0xFF475569),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ],
       ),

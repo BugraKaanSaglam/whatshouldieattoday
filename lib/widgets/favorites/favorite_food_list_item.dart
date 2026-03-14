@@ -124,10 +124,12 @@ class FavoriteFoodListItem extends StatelessWidget {
                             ),
                           ],
                           const Spacer(),
-                          const Icon(
-                            Icons.arrow_forward_rounded,
-                            size: 22,
-                            color: AppTheme.seedColor,
+                          Text(
+                            'viewRecipe'.tr(),
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: AppTheme.seedColor,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ],
                       ),

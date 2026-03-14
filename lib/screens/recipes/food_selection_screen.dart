@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -16,7 +17,6 @@ import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
 import 'package:yemek_tarifi_app/providers/recipes/food_selection_viewmodel.dart';
 import 'package:yemek_tarifi_app/core/utils/form_decorations.dart';
-import 'package:yemek_tarifi_app/core/utils/ui_helpers.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:yemek_tarifi_app/global/app_theme.dart';
 
@@ -33,7 +33,8 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
 
   @override
   void initState() {
-    _viewModel = FoodSelectionViewModel()..init(initialIngredients: globalDataBase!.initialIngredients);
+    _viewModel = FoodSelectionViewModel()
+      ..init(initialIngredients: globalDataBase!.initialIngredients);
     _scrollController = ScrollController()..addListener(_onScroll);
     super.initState();
   }
@@ -59,10 +60,26 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
     );
   }
 
-  Widget _selectIngredientsBody(BuildContext context, FoodSelectionViewModel viewModel) {
+  Widget _selectIngredientsBody(
+    BuildContext context,
+    FoodSelectionViewModel viewModel,
+  ) {
     return Column(
       children: [
-        _buildFilterHero(context, viewModel),
+        _buildSelectionHero(context, viewModel),
+        const SizedBox(height: 16),
+        IngredientSearchDropdown(
+          dropdownSelectedItems: viewModel.selectedIngredients,
+          onItemsChanged: viewModel.updateSelectedIngredients,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: _buildSelectionActions(context, viewModel),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+          child: _buildResultsSummary(context, viewModel),
+        ),
         const SizedBox(height: 16),
         Expanded(
           child: Padding(
@@ -79,70 +96,70 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
     );
   }
 
-  Widget _buildFilterHero(BuildContext context, FoodSelectionViewModel viewModel) {
-    final theme = Theme.of(context);
-    final List<Ingredient> selectedIngredients = viewModel.selectedIngredients;
-    final bool hasResults = viewModel.filteredFoodList.isNotEmpty;
-    final int totalCount = viewModel.totalMatches ?? viewModel.filteredFoodList.length;
-    final String totalLabel = '$totalCount ${'recipes'.tr()}';
+  Widget _buildSelectionHero(
+    BuildContext context,
+    FoodSelectionViewModel viewModel,
+  ) {
+    final ThemeData theme = Theme.of(context);
+    final int selectedCount = viewModel.selectedIngredients.length;
+    final int totalCount =
+        viewModel.totalMatches ?? viewModel.filteredFoodList.length;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 20, 12, 4),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+        padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFF0EA5E9), Color(0xFF6366F1)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF0F172A), Color(0xFF2563EB)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(32),
-          boxShadow: [BoxShadow(color: const Color(0xFF0EA5E9).withValues(alpha: 0.28), blurRadius: 26, offset: const Offset(0, 16))],
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF2563EB).withValues(alpha: 0.22),
+              blurRadius: 24,
+              offset: const Offset(0, 16),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(child: Text('clickFilterForMore'.tr(), style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.9)))),
-                if (viewModel.isSearchedOnce)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(12)),
-                    child: Text(
-                      totalLabel,
-                      style: theme.textTheme.labelMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-              ],
-            ),
-            if (selectedIngredients.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                children: selectedIngredients.take(2).map((ingredient) {
-                  final ingredientName = context.locale.languageCode == 'tr' && ingredient.nameTr.isNotEmpty ? ingredient.nameTr : ingredient.name;
-                  return Chip(
-                    backgroundColor: Colors.white,
-                    label: Text(ingredientName, style: const TextStyle(color: AppTheme.seedColor, fontWeight: FontWeight.w600)),
-                  );
-                }).toList(),
+            Text(
+              'selectionHeroTitle'.tr(),
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
               ),
-              if (selectedIngredients.length > 2) Padding(padding: const EdgeInsets.only(top: 2), child: Text('+${selectedIngredients.length - 2} ${'ingredients'.tr()}', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70))),
-            ],
+            ),
             const SizedBox(height: 10),
-            Row(
+            Text(
+              'selectionHeroBody'.tr(),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: Colors.white.withValues(alpha: 0.84),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => Dialog.fullscreen(backgroundColor: Colors.transparent, child: _filterContent(context, viewModel)),
-                    );
-                  },
-                  icon: const Icon(Icons.filter_list_rounded),
-                  label: Text('filter'.tr(), style: buttonTextStyle()),
+                _HeroChip(
+                  icon: Icons.shopping_basket_rounded,
+                  label: 'selectionSelectedCount'.tr(
+                    args: [selectedCount.toString()],
+                  ),
                 ),
-                const Spacer(),
-                if (hasResults) Text('scrollForMore'.tr(), style: theme.textTheme.labelMedium?.copyWith(color: Colors.white70)),
+                _HeroChip(
+                  icon: Icons.menu_book_rounded,
+                  label: viewModel.isSearchedOnce
+                      ? 'selectionResultsReady'.tr(
+                          args: [totalCount.toString()],
+                        )
+                      : 'clickFilterForMore'.tr(),
+                ),
               ],
             ),
           ],
@@ -151,28 +168,138 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
     );
   }
 
-  Widget _buildFoodResults(BuildContext context, FoodSelectionViewModel viewModel) {
+  Widget _buildSelectionActions(
+    BuildContext context,
+    FoodSelectionViewModel viewModel,
+  ) {
+    final bool hasSelection = viewModel.selectedIngredients.isNotEmpty;
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: hasSelection
+                ? () =>
+                      viewModel.updateSelectedIngredients(const <Ingredient>[])
+                : null,
+            icon: const Icon(Icons.clear_rounded),
+            label: Text('selectionSecondaryAction'.tr()),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 2,
+          child: ElevatedButton.icon(
+            onPressed: hasSelection
+                ? () async => _handleStartFiltering(context, viewModel)
+                : null,
+            icon: const Icon(Icons.search_rounded),
+            label: Text(
+              'selectionPrimaryAction'.tr(),
+              style: buttonTextStyle(fontSize: 16),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResultsSummary(
+    BuildContext context,
+    FoodSelectionViewModel viewModel,
+  ) {
+    final bool hasResults = viewModel.filteredFoodList.isNotEmpty;
+    final String message = !viewModel.isSearchedOnce
+        ? 'selectionResultsIdle'.tr()
+        : hasResults
+        ? 'selectionResultsReady'.tr(
+            args: [viewModel.filteredFoodList.length.toString()],
+          )
+        : 'selectionResultsEmpty'.tr();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppTheme.seedColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              hasResults
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.info_outline_rounded,
+              color: AppTheme.seedColor,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'selectionResultsTitle'.tr(),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 4),
+                Text(message, style: Theme.of(context).textTheme.bodyMedium),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFoodResults(
+    BuildContext context,
+    FoodSelectionViewModel viewModel,
+  ) {
     final bool isEmpty = viewModel.filteredFoodList.isEmpty;
     return RefreshIndicator(
       onRefresh: () => _refreshResults(viewModel),
       displacement: 24,
       child: isEmpty
           ? ListView(
-              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
               padding: const EdgeInsets.only(bottom: 32, top: 24),
               children: [
                 _EmptyState(
                   key: ValueKey<bool>(viewModel.isSearchedOnce),
-                  icon: viewModel.isSearchedOnce ? Icons.search_off_rounded : Icons.local_dining,
-                  message: viewModel.isSearchedOnce ? 'tryAnotherFilter'.tr() : 'pleaseStartSearch'.tr(),
+                  icon: viewModel.isSearchedOnce
+                      ? Icons.search_off_rounded
+                      : Icons.local_dining,
+                  message: viewModel.isSearchedOnce
+                      ? 'selectionResultsEmpty'.tr()
+                      : 'selectionResultsIdle'.tr(),
                 ),
               ],
             )
           : ListView.separated(
               controller: _scrollController,
-              itemCount: viewModel.filteredFoodList.length + (viewModel.isLoadingMore ? 1 : 0),
+              itemCount:
+                  viewModel.filteredFoodList.length +
+                  (viewModel.isLoadingMore ? 1 : 0),
               padding: const EdgeInsets.only(bottom: 32),
-              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
               itemBuilder: (BuildContext context, int index) {
                 if (index >= viewModel.filteredFoodList.length) {
                   return const Padding(
@@ -183,76 +310,25 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
                 final Food food = viewModel.filteredFoodList[index];
                 return FoodListItem(food: food, index: index);
               },
-              separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 16),
+              separatorBuilder: (BuildContext context, int index) =>
+                  const SizedBox(height: 16),
             ),
     );
   }
 
-  Widget _filterContent(BuildContext context, FoodSelectionViewModel viewModel) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                child: Row(
-                  children: [
-                    Text('filter'.tr(), style: Theme.of(context).textTheme.headlineMedium),
-                    const Spacer(),
-                    IconButton(
-                      style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-                      icon: const Icon(Icons.close_rounded),
-                      color: Colors.black,
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      customCard('foodSelectionText1'.tr()),
-                      const SizedBox(height: 20),
-                      IngredientSearchDropdown(
-                        dropdownSelectedItems: viewModel.selectedIngredients,
-                        onItemsChanged: viewModel.updateSelectedIngredients,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () async => await _handleStartFiltering(context, viewModel),
-                    icon: const Icon(Icons.play_arrow_rounded),
-                    label: Text('startSearch'.tr(), style: buttonTextStyle(fontSize: 16)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+  Future<void> _handleStartFiltering(
+    BuildContext context,
+    FoodSelectionViewModel viewModel,
+  ) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => const _FilteringSpinnerDialog(),
     );
-  }
-
-  Future<void> _handleStartFiltering(BuildContext context, FoodSelectionViewModel viewModel) async {
-    showDialog(context: context, barrierDismissible: false, builder: (BuildContext context) => const _FilteringSpinnerDialog());
     final String? error = await viewModel.startFiltering();
     if (!mounted) return;
     Navigator.of(context).pop();
     if (error == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('success'.tr()), duration: const Duration(seconds: 1)));
-      Navigator.of(context).pop();
       return;
     }
     showDialog(
@@ -260,7 +336,12 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
       builder: (context) => AlertDialog(
         title: Text('error'.tr()),
         content: Text(error),
-        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('OK'.tr()))],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'.tr()),
+          ),
+        ],
       ),
     );
   }
@@ -274,9 +355,44 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       _loadMore(_viewModel);
     }
+  }
+}
+
+class _HeroChip extends StatelessWidget {
+  const _HeroChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: Colors.white),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -290,12 +406,17 @@ class FoodListItem extends StatelessWidget {
     final theme = Theme.of(context);
     final isTurkish = context.locale.languageCode == 'tr';
     final String title = isTurkish ? food.nameTr : food.name;
-    final int? rawDuration = food.totalTimeMinutes ?? food.cookTimeMinutes ?? food.prepTimeMinutes;
+    final int? rawDuration =
+        food.totalTimeMinutes ?? food.cookTimeMinutes ?? food.prepTimeMinutes;
     final String timeText = formatDuration(rawDuration);
     final String? servingsValue = _normalizedServings(food.servings);
-    final String servingsText = servingsValue != null ? '$servingsValue ${'person'.tr()}' : '? ${'person'.tr()}';
+    final String servingsText = servingsValue != null
+        ? '$servingsValue ${'person'.tr()}'
+        : '? ${'person'.tr()}';
     final String heroTag = 'food-${food.recipeId}';
-    final String category = food.categories.isNotEmpty ? food.categories.first : '';
+    final String category = food.categories.isNotEmpty
+        ? food.categories.first
+        : '';
     final String cuisine = food.cuisines.isNotEmpty ? food.cuisines.first : '';
     final String cuisineFlag = _flagForCuisine(cuisine);
     final String coverUrl = BackendService.recipeImagePublicUrl(food.recipeId);
@@ -304,25 +425,44 @@ class FoodListItem extends StatelessWidget {
       tween: Tween(begin: 0, end: 1),
       duration: Duration(milliseconds: 420 + index * 60),
       curve: Curves.easeOutCubic,
-      builder: (context, value, child) => Transform.translate(offset: Offset(0, (1 - value) * 24), child: Opacity(opacity: value, child: child)),
+      builder: (context, value, child) => Transform.translate(
+        offset: Offset(0, (1 - value) * 24),
+        child: Opacity(opacity: value, child: child),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(26),
-        onTap: () => context.push(AppRoutes.recipeById(food.recipeId), extra: food),
+        onTap: () =>
+            context.push(AppRoutes.recipeById(food.recipeId), extra: food),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(26),
             color: Colors.white.withValues(alpha: 0.95),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 18, offset: const Offset(0, 12))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 18,
+                offset: const Offset(0, 12),
+              ),
+            ],
           ),
           child: SizedBox(
             height: 150,
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(26)),
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(26),
+                  ),
                   child: Hero(
                     tag: heroTag,
-                    child: SizedBox(width: 90, height: 150, child: FoodImage(imageUrls: [coverUrl], cacheKey: 'recipe-${food.recipeId}')),
+                    child: SizedBox(
+                      width: 90,
+                      height: 150,
+                      child: FoodImage(
+                        imageUrls: [coverUrl],
+                        cacheKey: 'recipe-${food.recipeId}',
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
@@ -335,30 +475,84 @@ class FoodListItem extends StatelessWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(child: Text(title, style: theme.textTheme.titleLarge?.copyWith(fontSize: 17), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontSize: 17,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                             const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward_rounded, size: 20, color: AppTheme.seedColor),
+                            const Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 20,
+                              color: AppTheme.seedColor,
+                            ),
                           ],
                         ),
                         Wrap(
                           spacing: 8,
                           runSpacing: 6,
                           children: [
-                            _chip(theme, icon: Icons.category_rounded, label: category.isNotEmpty ? category : '—'),
-                            if (cuisine.isNotEmpty || cuisineFlag.isNotEmpty) _cuisineChip(theme, flag: cuisineFlag, cuisine: cuisine),
+                            _chip(
+                              theme,
+                              icon: Icons.category_rounded,
+                              label: category.isNotEmpty ? category : '—',
+                            ),
+                            if (cuisine.isNotEmpty || cuisineFlag.isNotEmpty)
+                              _cuisineChip(
+                                theme,
+                                flag: cuisineFlag,
+                                cuisine: cuisine,
+                              ),
                           ],
                         ),
                         Row(
                           children: [
-                            const Icon(Icons.group_outlined, size: 18, color: AppTheme.seedColor),
+                            const Icon(
+                              Icons.group_outlined,
+                              size: 18,
+                              color: AppTheme.seedColor,
+                            ),
                             const SizedBox(width: 6),
-                            Flexible(child: Text(servingsText, style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54), overflow: TextOverflow.ellipsis)),
+                            Flexible(
+                              child: Text(
+                                servingsText,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: Colors.black54,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                             if (timeText.isNotEmpty) ...[
                               const SizedBox(width: 12),
-                              const Icon(Icons.schedule_rounded, size: 18, color: AppTheme.seedColor),
+                              const Icon(
+                                Icons.schedule_rounded,
+                                size: 18,
+                                color: AppTheme.seedColor,
+                              ),
                               const SizedBox(width: 6),
-                              Flexible(child: Text(timeText, style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54), overflow: TextOverflow.ellipsis)),
+                              Flexible(
+                                child: Text(
+                                  timeText,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: Colors.black54,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ],
+                            const Spacer(),
+                            Text(
+                              'viewRecipe'.tr(),
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: AppTheme.seedColor,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -374,10 +568,19 @@ class FoodListItem extends StatelessWidget {
   }
 
   TextStyle _badgeTextStyle(ThemeData theme) {
-    return theme.textTheme.labelMedium?.copyWith(color: Colors.black87) ?? const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87);
+    return theme.textTheme.labelMedium?.copyWith(color: Colors.black87) ??
+        const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+        );
   }
 
-  Widget _cuisineChip(ThemeData theme, {required String flag, required String cuisine}) {
+  Widget _cuisineChip(
+    ThemeData theme, {
+    required String flag,
+    required String cuisine,
+  }) {
     final TextStyle baseStyle = _badgeTextStyle(theme);
     final double flagSize = (baseStyle.fontSize ?? 13) + 6;
     final bool showFlag = flag.isNotEmpty;
@@ -398,7 +601,11 @@ class FoodListItem extends StatelessWidget {
             if (showCuisine) const SizedBox(width: 6),
           ],
           if (showCuisine) Text(cuisine, style: baseStyle),
-          if (!showFlag && !showCuisine) Text('cuisineLabel'.tr(), style: baseStyle.copyWith(color: Colors.black54)),
+          if (!showFlag && !showCuisine)
+            Text(
+              'cuisineLabel'.tr(),
+              style: baseStyle.copyWith(color: Colors.black54),
+            ),
         ],
       ),
     );
@@ -458,14 +665,20 @@ class FoodListItem extends StatelessWidget {
     String firstEntry = trimmed;
     if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
       final inner = trimmed.substring(1, trimmed.length - 1);
-      final List<String> parts = inner.split(',').map((e) => e.trim().replaceAll(RegExp(r'''^['"]|['"]$'''), '')).where((e) => e.isNotEmpty).toList();
+      final List<String> parts = inner
+          .split(',')
+          .map((e) => e.trim().replaceAll(RegExp(r'''^['"]|['"]$'''), ''))
+          .where((e) => e.isNotEmpty)
+          .toList();
       if (parts.isNotEmpty) firstEntry = parts.first;
     }
 
     final RegExpMatch? match = RegExp(r'\d+').firstMatch(firstEntry);
     if (match != null) return match.group(0);
 
-    final String fallback = firstEntry.replaceAll(RegExp(r'''^['"]|['"]$'''), '').trim();
+    final String fallback = firstEntry
+        .replaceAll(RegExp(r'''^['"]|['"]$'''), '')
+        .trim();
     return fallback.isNotEmpty ? fallback : null;
   }
 }
@@ -487,12 +700,27 @@ class _EmptyState extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.35),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 6))],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-            child: const Icon(Icons.local_dining, size: 40, color: AppTheme.seedColor),
+            child: const Icon(
+              Icons.local_dining,
+              size: 40,
+              color: AppTheme.seedColor,
+            ),
           ),
           const SizedBox(height: 20),
-          Text(message, style: theme.textTheme.bodyLarge?.copyWith(color: const Color(0xFF475569))),
+          Text(
+            message,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: const Color(0xFF475569),
+            ),
+          ),
         ],
       ),
     );
@@ -503,7 +731,8 @@ class _FilteringSpinnerDialog extends StatefulWidget {
   const _FilteringSpinnerDialog();
 
   @override
-  State<_FilteringSpinnerDialog> createState() => _FilteringSpinnerDialogState();
+  State<_FilteringSpinnerDialog> createState() =>
+      _FilteringSpinnerDialogState();
 }
 
 class _FilteringSpinnerDialogState extends State<_FilteringSpinnerDialog> {
@@ -523,7 +752,9 @@ class _FilteringSpinnerDialogState extends State<_FilteringSpinnerDialog> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _messages = _localizedMessages(context).where((text) => text.trim().isNotEmpty).toList();
+    _messages = _localizedMessages(
+      context,
+    ).where((text) => text.trim().isNotEmpty).toList();
     if (_messages.isEmpty) _messages = ['loading'.tr()];
     if (_messageIndex >= _messages.length) _messageIndex = 0;
   }
@@ -561,7 +792,13 @@ class _FilteringSpinnerDialogState extends State<_FilteringSpinnerDialog> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 12))],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
+                ),
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -571,7 +808,11 @@ class _FilteringSpinnerDialogState extends State<_FilteringSpinnerDialog> {
                   width: 90,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(colors: [Color(0xFF0EA5E9), Color(0xFF6366F1)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF0EA5E9), Color(0xFF6366F1)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
                   child: const Padding(
                     padding: EdgeInsets.all(16.0),
@@ -585,18 +826,24 @@ class _FilteringSpinnerDialogState extends State<_FilteringSpinnerDialog> {
                 const SizedBox(height: 18),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 420),
-                  transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                  transitionBuilder: (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
                   child: Text(
                     currentMessage,
                     key: ValueKey<String>(currentMessage),
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: Colors.blueGrey.shade900),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: Colors.blueGrey.shade900,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'filteringDialogSubtitle'.tr(),
-                  style: theme.textTheme.bodyMedium?.copyWith(color: Colors.blueGrey.shade600),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.blueGrey.shade600,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],

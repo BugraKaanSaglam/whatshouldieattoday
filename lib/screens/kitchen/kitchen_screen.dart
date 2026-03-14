@@ -31,37 +31,21 @@ class _KitchenScreenState extends State<KitchenScreen> {
   Widget build(BuildContext context) {
     return AppScaffold(
       appBar: MainAppBar(title: 'initialIngredientsSelectorScreenTitle'.tr()),
-      body: Column(
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+        physics: const BouncingScrollPhysics(),
         children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                _buildHeroCard(context),
-                const SizedBox(height: 16),
-                IngredientSearchDropdown(
-                  key: _dropdownKey,
-                  dropdownSelectedItems: _selectedIngredients,
-                  onItemsChanged: (List<Ingredient> selectedItems) {
-                    setState(() => _selectedIngredients = selectedItems);
-                  },
-                ),
-              ],
-            ),
+          _buildHeroCard(context),
+          const SizedBox(height: 16),
+          IngredientSearchDropdown(
+            key: _dropdownKey,
+            dropdownSelectedItems: _selectedIngredients,
+            onItemsChanged: (List<Ingredient> selectedItems) {
+              setState(() => _selectedIngredients = selectedItems);
+            },
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
-              children: [
-                SizedBox(width: 190, child: saveButton()),
-                SizedBox(width: 190, child: deleteAllSavedIngredients()),
-              ],
-            ),
-          ),
+          const SizedBox(height: 16),
+          _buildActionCard(context),
         ],
       ),
     );
@@ -115,7 +99,7 @@ class _KitchenScreenState extends State<KitchenScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'initialIngredientsText1'.tr(),
+            'kitchenHeroBody'.tr(),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.86),
             ),
@@ -137,6 +121,48 @@ class _KitchenScreenState extends State<KitchenScreen> {
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('save'.tr(), style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 6),
+          Text(
+            'kitchenSaveActionBody'.tr(),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          SizedBox(width: double.infinity, child: saveButton()),
+          const SizedBox(height: 18),
+          Text(
+            'deleteAllSavedIngredients'.tr(),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'kitchenDeleteActionBody'.tr(),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          SizedBox(width: double.infinity, child: deleteAllSavedIngredients()),
         ],
       ),
     );
@@ -164,7 +190,10 @@ class _KitchenScreenState extends State<KitchenScreen> {
       },
       icon: const Icon(Icons.save, color: Colors.white),
       label: Text("save".tr(), style: buttonTextStyle()),
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green,
+        minimumSize: const Size.fromHeight(54),
+      ),
     );
   }
 
@@ -174,7 +203,10 @@ class _KitchenScreenState extends State<KitchenScreen> {
           showDialog(context: context, builder: (context) => warningDialog()),
       icon: const Icon(Icons.delete_forever, color: Colors.white),
       label: Text("deleteAllSavedIngredients".tr(), style: buttonTextStyle()),
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.red,
+        minimumSize: const Size.fromHeight(54),
+      ),
     );
   }
 

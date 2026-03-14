@@ -17,6 +17,10 @@ class TestAssetLoader extends AssetLoader {
     'startCooking': 'Start Cooking!',
     'initialIngredientsSelectorScreenTitle': 'My Kitchen',
     'initialIngredientsText1': 'Save ingredients once for faster cooking.',
+    'kitchenHeroBody':
+        'Build your default kitchen set. Ingredients saved here make recipe search faster every time.',
+    'kitchenSaveActionBody': 'Save the selected ingredients on this device.',
+    'kitchenDeleteActionBody': 'Clear the entire saved kitchen list.',
     'settingsTitle': 'Settings',
     'settingsHeroTitle': 'Make the app yours',
     'settingsHeroBody':
@@ -37,10 +41,41 @@ class TestAssetLoader extends AssetLoader {
     'loading': 'Loading...',
     'storedIngredientsCount': '{} ingredients saved',
     'ingredients': 'Ingredients',
+    'select_ingredients': 'Select Ingredients',
+    'selectionIngredientHelper':
+        'Search ingredients, add them to your current selection, and remove anything you do not want before starting.',
+    'selectionIngredientEmpty':
+        'No ingredients selected yet. Tap below and start building your recipe search.',
+    'selectionSelectedCount': '{} selected',
+    'selectionHeroTitle': 'Find recipes with less guesswork',
+    'selectionHeroBody':
+        'Choose ingredients once, review what is selected, then search matching recipes in a single flow.',
+    'selectionResultsTitle': 'Search status',
+    'selectionResultsIdle':
+        'Choose ingredients and tap the main action to see matching recipes.',
+    'selectionResultsReady': '{} recipes are ready to browse.',
+    'selectionResultsEmpty':
+        'No recipes matched this selection yet. Try removing or changing a few ingredients.',
+    'selectionPrimaryAction': 'Find recipes',
+    'selectionSecondaryAction': 'Clear selection',
+    'viewRecipe': 'Open recipe',
+    'feedbackScreen': 'Feedback',
+    'feedbackHeroBody':
+        'Send bugs, friction points, or improvement ideas directly. A short and clear note is enough.',
+    'feedbackEmailHint':
+        'Add your email so we can reach you if a follow-up is needed.',
+    'feedbackMessageHint':
+        'Describe what should improve in a few concise sentences.',
+    'Email': 'Email',
+    'yourFeedback': 'Your Feedback',
+    'send': 'Send',
     'timeInfo': 'Time Info',
     'contents': 'Contents',
     'recipeSteps': 'Recipe Steps',
     'sendFeedback': 'Send Feedback',
+    'thankyouForYourFeedback': 'Thank You For Your Feedback!',
+    'yourFeedbackWillBeReview':
+        'Your message will be reviewed for future improvements.',
     'prepTime': 'Prep Time',
     'cookTime': 'Cook Time',
     'totalTime': 'Total Time',
@@ -55,6 +90,14 @@ class TestAssetLoader extends AssetLoader {
     'sugar': 'Sugar',
     'protein': 'Protein',
     'recipeInfo': 'Recipe Info',
+    'recipeOverviewTitle': 'Quick overview',
+    'categoryLabel': 'Category',
+    'cookingMethodsLabel': 'Cooking methods',
+    'implementsLabel': 'Kitchen tools',
+    'servingsLabel': 'Servings',
+    'ratingLabel': 'Rating',
+    'sourceLabel': 'Source',
+    'share': 'Share',
     'shareRecipeMessage': 'You should try this recipe! 👉 {}',
     'shareFallback': 'Sharing failed, link copied to clipboard.',
     'shareAppTitle': 'Share the app',
@@ -67,6 +110,7 @@ class TestAssetLoader extends AssetLoader {
     'openAppStore': 'Open App Store',
     'openPlayStore': 'Open Google Play',
     'save': 'Save',
+    'saved': 'Saved',
     'languageSaved': 'Settings saved.',
     'couldNotOpenLink': 'Could not open the link. Please try again.',
     'cuisineLabel': 'Cuisine',
@@ -83,6 +127,15 @@ class TestAssetLoader extends AssetLoader {
     'maintenanceBody': 'Maintenance body',
     'maintenanceBadge': 'Maintenance mode',
     'maintenanceStaticDescription': 'Static maintenance description',
+    'creditsHeroTitle': 'Sources and acknowledgments',
+    'creditsHeroBody':
+        "This page keeps the project's data source, license frame, and contributor attribution visible and explicit.",
+    'creditsCreatorRole': 'Product, design, and mobile development',
+    'creditsLicenseHint':
+        'The dataset source and usage obligations are kept transparent here.',
+    'splashTitle': 'Preparing your recipes',
+    'splashBody': 'Loading data and your saved preferences.',
+    'onboardingProgress': '{} / {}',
   };
 
   static const Map<String, dynamic> _tr = <String, dynamic>{
@@ -99,6 +152,10 @@ class TestAssetLoader extends AssetLoader {
     'initialIngredientsSelectorScreenTitle': 'Mutfagim',
     'initialIngredientsText1':
         'Malzemeleri bir kez kaydet, sonra daha hizli pisir.',
+    'kitchenHeroBody':
+        'Kendi mutfak temelini olustur. Buraya ekledigin malzemeler tarif ararken hizli baslangic saglar.',
+    'kitchenSaveActionBody': 'Secili malzemeleri bu cihaza kaydet.',
+    'kitchenDeleteActionBody': 'Kayitli mutfak listenin tamamini temizle.',
     'settingsTitle': 'Ayarlar',
     'settingsHeroTitle': 'Uygulamayi kendine gore ayarla',
     'settingsHeroBody':
@@ -119,10 +176,41 @@ class TestAssetLoader extends AssetLoader {
     'loading': 'Yukleniyor...',
     'storedIngredientsCount': '{} malzeme kayitli',
     'ingredients': 'Malzemeler',
+    'select_ingredients': 'Malzemeleri Sec',
+    'selectionIngredientHelper':
+        'Malzeme ara, secimine ekle ve aramayi baslatmadan once istemediklerini cikar.',
+    'selectionIngredientEmpty':
+        'Henuz malzeme secmedin. Asagidan baslayip tarif aramani olustur.',
+    'selectionSelectedCount': '{} secildi',
+    'selectionHeroTitle': 'Tahmin etmeden tarif bul',
+    'selectionHeroBody':
+        'Malzemeleri sec, secimini gozden gecir ve ayni akis icinde eslesen tarifleri gor.',
+    'selectionResultsTitle': 'Arama durumu',
+    'selectionResultsIdle':
+        'Malzemeleri sec ve eslesen tarifleri gormek icin ana aksiyona dokun.',
+    'selectionResultsReady': '{} tarif goruntulenmeye hazir.',
+    'selectionResultsEmpty':
+        'Bu secimle eslesen tarif bulunamadi. Birkac malzeme cikarip tekrar dene.',
+    'selectionPrimaryAction': 'Tarifleri bul',
+    'selectionSecondaryAction': 'Secimi temizle',
+    'viewRecipe': 'Tarifi ac',
+    'feedbackScreen': 'Geri bildirim',
+    'feedbackHeroBody':
+        'Eksik gordugun alanlari, hatalari veya iyilestirme onerilerini dogrudan gonder. Kisa ve net yazman yeterli.',
+    'feedbackEmailHint':
+        'Gerekirse sana donus yapabilmemiz icin e-posta adresini ekle.',
+    'feedbackMessageHint':
+        'Neyi gelistirmenin daha iyi olacagini birkac cumleyle anlat.',
+    'Email': 'Eposta',
+    'yourFeedback': 'Geri Bildirimin',
+    'send': 'Gonder',
     'timeInfo': 'Sure Bilgisi',
     'contents': 'Icerik',
     'recipeSteps': 'Tarif Adimlari',
     'sendFeedback': 'Geri Bildirim Gonder',
+    'thankyouForYourFeedback': 'Bildirim icin tesekkurler!',
+    'yourFeedbackWillBeReview':
+        'Mesajin incelenecek ve sonraki iyilestirmelerde degerlendirilecek.',
     'prepTime': 'Hazirlama',
     'cookTime': 'Pisirme',
     'totalTime': 'Toplam Sure',
@@ -137,6 +225,14 @@ class TestAssetLoader extends AssetLoader {
     'sugar': 'Seker',
     'protein': 'Protein',
     'recipeInfo': 'Tarif Bilgisi',
+    'recipeOverviewTitle': 'Hizli ozet',
+    'categoryLabel': 'Kategori',
+    'cookingMethodsLabel': 'Pisirme yontemleri',
+    'implementsLabel': 'Mutfak araclari',
+    'servingsLabel': 'Porsiyon',
+    'ratingLabel': 'Puan',
+    'sourceLabel': 'Kaynak',
+    'share': 'Paylas',
     'shareRecipeMessage': 'Bu tarifi denemelisin! 👉 {}',
     'shareFallback': 'Paylasim acilamadi.',
     'shareAppTitle': 'Uygulamayi paylas',
@@ -149,6 +245,7 @@ class TestAssetLoader extends AssetLoader {
     'openAppStore': "App Store'u ac",
     'openPlayStore': "Google Play'i ac",
     'save': 'Kaydet',
+    'saved': 'Kaydedildi',
     'languageSaved': 'Ayarlar kaydedildi.',
     'couldNotOpenLink': 'Baglanti acilamadi. Lutfen tekrar deneyin.',
     'cuisineLabel': 'Mutfak',
@@ -166,6 +263,15 @@ class TestAssetLoader extends AssetLoader {
     'maintenanceBody': 'Bakim govdesi',
     'maintenanceBadge': 'Bakim modu',
     'maintenanceStaticDescription': 'Statik bakim aciklamasi',
+    'creditsHeroTitle': 'Kaynaklar ve emegi gecenler',
+    'creditsHeroBody':
+        'Bu ekran, uygulamanin veri kaynagini, lisans cercevesini ve projeye katki saglayan taraflari acik sekilde listeler.',
+    'creditsCreatorRole': 'Urun, tasarim ve mobil gelistirme',
+    'creditsLicenseHint':
+        'Veri kaynagi ve kullanim sartlari seffaf bicimde burada tutulur.',
+    'splashTitle': 'Tarifler hazirlaniyor',
+    'splashBody': 'Veriler ve kisisel tercihlerin yukleniyor.',
+    'onboardingProgress': '{} / {}',
   };
 
   @override

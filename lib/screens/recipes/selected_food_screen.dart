@@ -66,12 +66,6 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
   late BannerAd _bannerAd;
   bool _isAdLoaded = false;
 
-  double get _fabBottomPadding {
-    final safe = MediaQuery.of(context).padding.bottom;
-    final adH = _isAdLoaded ? _bannerAd.size.height.toDouble() : 0;
-    return 20 + adH + safe;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -239,75 +233,62 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
 
   Widget selectedFoodBody() {
     final double scrollBottomPad =
-        100 + (_isAdLoaded ? _bannerAd.size.height.toDouble() : 0);
+        32 + (_isAdLoaded ? _bannerAd.size.height.toDouble() : 0);
     final bool hasIngredients =
         food.ingredients.isNotEmpty ||
         food.ingredientsRaw.isNotEmpty ||
         food.ingredientsRawTr.isNotEmpty;
-    return Stack(
-      children: [
-        SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: scrollBottomPad),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImageSection(),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildMetaHighlights(),
-                    const SizedBox(height: 20),
-                    _buildRecipeFactsCard(),
-                    if (hasIngredients) ...[
-                      const SizedBox(height: 20),
-                      _buildSectionCard(
-                        title: 'ingredients'.tr(),
-                        icon: Icons.shopping_basket_outlined,
-                        child: _buildIngredientsContent(),
-                      ),
-                    ],
-                    const SizedBox(height: 20),
-                    _buildSectionCard(
-                      title: 'timeInfo'.tr(),
-                      icon: Icons.timer_outlined,
-                      child: _buildTimeInfoContent(),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildSectionCard(
-                      title: 'contents'.tr(),
-                      icon: Icons.local_fire_department_outlined,
-                      child: _buildNutritionalContent(),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildSectionCard(
-                      title: 'recipeSteps'.tr(),
-                      icon: Icons.menu_book_outlined,
-                      child: Text(
-                        customChangeString(stepsText),
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildFeedbackButton(),
-                  ],
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: scrollBottomPad),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildImageSection(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildMetaHighlights(),
+                const SizedBox(height: 16),
+                _buildPrimaryActions(),
+                const SizedBox(height: 20),
+                _buildOverviewCard(),
+                const SizedBox(height: 20),
+                _buildRecipeFactsCard(),
+                if (hasIngredients) ...[
+                  const SizedBox(height: 20),
+                  _buildSectionCard(
+                    title: 'ingredients'.tr(),
+                    icon: Icons.shopping_basket_outlined,
+                    child: _buildIngredientsContent(),
+                  ),
+                ],
+                const SizedBox(height: 20),
+                _buildSectionCard(
+                  title: 'timeInfo'.tr(),
+                  icon: Icons.timer_outlined,
+                  child: _buildTimeInfoContent(),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                _buildSectionCard(
+                  title: 'contents'.tr(),
+                  icon: Icons.local_fire_department_outlined,
+                  child: _buildNutritionalContent(),
+                ),
+                const SizedBox(height: 20),
+                _buildSectionCard(
+                  title: 'recipeSteps'.tr(),
+                  icon: Icons.menu_book_outlined,
+                  child: _buildRecipeStepsContent(),
+                ),
+                const SizedBox(height: 20),
+                _buildFeedbackButton(),
+              ],
+            ),
           ),
-        ),
-        Positioned(
-          bottom: _fabBottomPadding,
-          left: 16,
-          child: _buildShareFab(),
-        ),
-        Positioned(
-          bottom: _fabBottomPadding,
-          right: 16,
-          child: _buildFavoriteFab(),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -385,6 +366,97 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
     return Wrap(spacing: 8, runSpacing: 8, children: highlights);
   }
 
+  Widget _buildPrimaryActions() {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: _shareRecipe,
+            icon: const Icon(Icons.share_rounded),
+            label: Text('share'.tr()),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: _favorite,
+            icon: Icon(
+              _resolvedIsFavorite
+                  ? Icons.favorite
+                  : Icons.favorite_border_rounded,
+            ),
+            label: Text(_resolvedIsFavorite ? 'saved'.tr() : 'favorites'.tr()),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOverviewCard() {
+    final String totalTimeText = formatDuration(food.totalTimeMinutes);
+    final List<_InfoItem> items = <_InfoItem>[
+      _InfoItem(
+        icon: Icons.group_outlined,
+        label: 'servingsLabel'.tr(),
+        value: _normalizedServings(food.servings) ?? 'unknown'.tr(),
+      ),
+      _InfoItem(
+        icon: Icons.timer_outlined,
+        label: 'totalTime'.tr(),
+        value: totalTimeText.isEmpty ? 'unknown'.tr() : totalTimeText,
+      ),
+      if (food.categories.isNotEmpty)
+        _InfoItem(
+          icon: Icons.category_outlined,
+          label: 'categoryLabel'.tr(),
+          value: food.categories.first,
+        ),
+      if (food.cuisines.isNotEmpty)
+        _InfoItem(
+          icon: Icons.public_rounded,
+          label: 'cuisineLabel'.tr(),
+          value: food.cuisines.first,
+        ),
+    ];
+
+    return _buildSectionCard(
+      title: 'recipeOverviewTitle'.tr(),
+      icon: Icons.auto_awesome_rounded,
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: items.map((item) {
+          return Container(
+            width: 160,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppTheme.seedColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(item.icon, color: AppTheme.seedColor, size: 18),
+                const SizedBox(height: 10),
+                Text(
+                  item.label,
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item.value,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: const Color(0xFF1F2937),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _buildRecipeFactsCard() {
     final bool isTr = context.locale.languageCode == 'tr';
     final String recipeInfoTitle = 'recipeInfo'.tr();
@@ -394,7 +466,7 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
     final List<Widget> rows = [];
 
     if (food.categories.isNotEmpty) {
-      rows.add(_factRow('Category', _stringPills(food.categories)));
+      rows.add(_factRow('categoryLabel'.tr(), _stringPills(food.categories)));
     }
 
     if (food.cuisines.isNotEmpty) {
@@ -402,16 +474,25 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
     }
 
     if (food.cookingMethods.isNotEmpty) {
-      rows.add(_factRow('Cooking Methods', _stringPills(food.cookingMethods)));
+      rows.add(
+        _factRow('cookingMethodsLabel'.tr(), _stringPills(food.cookingMethods)),
+      );
     }
 
     if (food.implementsList.isNotEmpty) {
-      rows.add(_factRow('Implements', _stringPills(food.implementsList)));
+      rows.add(
+        _factRow('implementsLabel'.tr(), _stringPills(food.implementsList)),
+      );
     }
 
     final String? servingsValue = _normalizedServings(food.servings);
     if (servingsValue != null) {
-      rows.add(_factRow('Servings', _pill('$servingsValue ${'person'.tr()}')));
+      rows.add(
+        _factRow(
+          'servingsLabel'.tr(),
+          _pill('$servingsValue ${'person'.tr()}'),
+        ),
+      );
     }
 
     if (food.numberOfSteps != null) {
@@ -423,14 +504,14 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
       food.ratingCount,
     );
     if (ratingWidget != null) {
-      rows.add(_factRow('Rating', ratingWidget));
+      rows.add(_factRow('ratingLabel'.tr(), ratingWidget));
     }
 
     if (food.url != null && food.url!.trim().isNotEmpty) {
       final String urlText = food.url!.trim();
       rows.add(
         _factRow(
-          'URL',
+          'sourceLabel'.tr(),
           GestureDetector(
             onTap: () => _launchRecipeUrl(urlText),
             onLongPress: () => _copyUrlToClipboard(urlText),
@@ -624,56 +705,56 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
         ? food.ingredientsRawTr
         : food.ingredientsRaw;
     if (rawIngredients.isNotEmpty) {
-      return Wrap(
-        spacing: 10,
-        runSpacing: 10,
+      return Column(
         children: rawIngredients
-            .map(
-              (item) => Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.secondaryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Text(
-                  item,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1F2937),
-                  ),
-                ),
-              ),
-            )
-            .toList(),
+            .map((item) => _buildIngredientRow(item))
+            .toList(growable: false),
       );
     }
     final List<Ingredient> ingredients = food.ingredients;
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
+    return Column(
       children: List.generate(ingredients.length, (index) {
         final Ingredient ingredient = ingredients[index];
         final String value = (isTr && ingredient.nameTr.isNotEmpty)
             ? ingredient.nameTr
             : ingredient.name;
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppTheme.secondaryColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Text(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1F2937),
+        return _buildIngredientRow(value);
+      }),
+    );
+  }
+
+  Widget _buildIngredientRow(String item) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.secondaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 1),
+            child: Icon(
+              Icons.check_circle_outline_rounded,
+              color: AppTheme.secondaryColor,
+              size: 18,
             ),
           ),
-        );
-      }),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              item,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1F2937),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -749,37 +830,97 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
       ('fiber'.tr(), _formatNutrient(food.fiber, 'g')),
       ('sugar'.tr(), _formatNutrient(food.sugar, 'g')),
       ('protein'.tr(), _formatNutrient(food.protein, 'g')),
-    ];
+    ].where((item) => item.$2 != '-').toList();
+    if (nutritionItems.isEmpty) {
+      return Text(
+        'unknown'.tr(),
+        style: Theme.of(context).textTheme.bodyMedium,
+      );
+    }
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: nutritionItems.map((item) {
+        return Container(
+          width: 150,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.$1,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: const Color(0xFF475569),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                item.$2,
+                style: const TextStyle(
+                  color: Color(0xFF1F2937),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildRecipeStepsContent() {
+    final List<String> steps = stepsText.isEmpty
+        ? <String>[]
+        : stepsText.split('\n\n').map(customChangeString).toList();
+    if (steps.isEmpty) {
+      return Text(
+        'unknown'.tr(),
+        style: Theme.of(context).textTheme.bodyMedium,
+      );
+    }
     return Column(
-      children: nutritionItems
-          .map(
-            (item) => Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      item.$1,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  Text(
-                    item.$2,
+      children: List.generate(steps.length, (index) {
+        final String step = steps[index];
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: AppTheme.seedColor,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Center(
+                  child: Text(
+                    '${index + 1}',
                     style: const TextStyle(
-                      color: Color(0xFF475569),
-                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          )
-          .toList(),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(step, style: Theme.of(context).textTheme.bodyLarge),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
@@ -902,7 +1043,7 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
 
   Future<void> _favorite() async {
     setState(() {
-      // Rebuild the FAB immediately after persistence.
+      // Rebuild immediately after persistence.
     });
     if (widget.onToggleFavorite != null) {
       await widget.onToggleFavorite!(food, _primaryCategoryLabel);
@@ -914,28 +1055,6 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
     }
     if (!mounted) return;
     setState(() {});
-  }
-
-  Widget _buildShareFab() {
-    return FloatingActionButton.small(
-      heroTag: 'shareFab',
-      backgroundColor: Colors.white,
-      foregroundColor: AppTheme.seedColor,
-      onPressed: _shareRecipe,
-      child: const Icon(Icons.share_rounded),
-    );
-  }
-
-  Widget _buildFavoriteFab() {
-    return FloatingActionButton.small(
-      heroTag: 'favFab',
-      backgroundColor: _resolvedIsFavorite ? Colors.amber : Colors.white,
-      foregroundColor: _resolvedIsFavorite ? Colors.white : Colors.grey,
-      onPressed: _favorite,
-      child: Icon(
-        _resolvedIsFavorite ? Icons.favorite : Icons.favorite_border_rounded,
-      ),
-    );
   }
 }
 

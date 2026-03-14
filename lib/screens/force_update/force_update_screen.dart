@@ -20,16 +20,22 @@ class ForceUpdateScreen extends StatefulWidget {
   State<ForceUpdateScreen> createState() => _ForceUpdateScreenState();
 }
 
-class _ForceUpdateScreenState extends State<ForceUpdateScreen> with SingleTickerProviderStateMixin {
-  static const String _playStoreUrl = 'https://play.google.com/store/apps/details?id=com.whatshouldieattoday.mobile';
-  static const String _appStoreUrl = 'https://apps.apple.com/us/app/what-should-i-eat-today/id6741708205';
+class _ForceUpdateScreenState extends State<ForceUpdateScreen>
+    with SingleTickerProviderStateMixin {
+  static const String _playStoreUrl =
+      'https://play.google.com/store/apps/details?id=com.whatshouldieattoday.mobile';
+  static const String _appStoreUrl =
+      'https://apps.apple.com/tr/app/what-should-i-eat-today/id6741708205?l=tr';
 
   late final AnimationController _pulseController;
 
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat(reverse: true);
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
   }
 
   @override
@@ -60,9 +66,9 @@ class _ForceUpdateScreenState extends State<ForceUpdateScreen> with SingleTicker
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('couldNotOpenLink'.tr())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('couldNotOpenLink'.tr())));
     }
   }
 }
