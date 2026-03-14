@@ -22,15 +22,38 @@ import 'package:yemek_tarifi_app/core/network/backend_service.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+typedef RecipeFoodLoader = Future<Food?> Function(int recipeId);
+typedef FavoriteToggleHandler =
+    Future<void> Function(Food food, String category);
+typedef FavoriteStatusResolver = bool Function(int recipeId);
+typedef ShareRecipeHandler =
+    Future<void> Function(Uri recipeUrl, String subject, String text);
+typedef LaunchRecipeUrlHandler = Future<bool> Function(Uri uri);
+typedef RecipeImageUrlBuilder = String Function(int recipeId);
+
 class SelectedFoodScreen extends StatefulWidget {
   final Food food;
   final int recipeId;
   final String category;
+  final bool adsEnabled;
+  final RecipeFoodLoader? foodLoader;
+  final FavoriteToggleHandler? onToggleFavorite;
+  final FavoriteStatusResolver? isFavoriteResolver;
+  final ShareRecipeHandler? shareRecipeHandler;
+  final LaunchRecipeUrlHandler? launchRecipeUrlHandler;
+  final RecipeImageUrlBuilder? imageUrlBuilder;
   const SelectedFoodScreen(
     this.food, {
     super.key,
     required this.recipeId,
     required this.category,
+    this.adsEnabled = true,
+    this.foodLoader,
+    this.onToggleFavorite,
+    this.isFavoriteResolver,
+    this.shareRecipeHandler,
+    this.launchRecipeUrlHandler,
+    this.imageUrlBuilder,
   });
   @override
   State<SelectedFoodScreen> createState() => _SelectedFoodScreenState();
@@ -54,7 +77,9 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
     super.initState();
 
     // 1) Context KULLANMADAN başlangıç atamaları
-    _initBannerAd();
+    if (widget.adsEnabled) {
+      _initBannerAd();
+    }
     food = widget.food;
     // Yerel dil daha sonra didChangeDependencies'te uygulanacak.
     foodName = food.name.isNotEmpty ? food.name : food.nameTr;
@@ -99,7 +124,9 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
 
   @override
   void dispose() {
-    _bannerAd.dispose();
+    if (widget.adsEnabled) {
+      _bannerAd.dispose();
+    }
     super.dispose();
   }
 
@@ -130,6 +157,9 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
   }
 
   Future<Food?> _fetchSingleFood(int recipeId) async {
+    if (widget.foodLoader != null) {
+      return widget.foodLoader!(recipeId);
+    }
     final SupabaseClient supabase = Supabase.instance.client;
     try {
       final List<Map<String, dynamic>> data = await supabase
@@ -282,7 +312,9 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
   }
 
   Widget _buildImageSection() {
-    final String coverUrl = BackendService.recipeImagePublicUrl(food.recipeId);
+    final String coverUrl =
+        widget.imageUrlBuilder?.call(food.recipeId) ??
+        BackendService.recipeImagePublicUrl(food.recipeId);
     return Hero(
       tag: 'food-${food.recipeId}',
       child: ClipRRect(
@@ -801,10 +833,9 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
       return;
     }
     try {
-      final bool launched = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
+      final bool launched = widget.launchRecipeUrlHandler != null
+          ? await widget.launchRecipeUrlHandler!(uri)
+          : await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!launched) {
         await _copyUrlToClipboard(urlText);
       }
@@ -841,6 +872,8 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
   }
 
   bool get _isFavorite => FavoritesStore.isFavorite(food.recipeId);
+  bool get _resolvedIsFavorite =>
+      widget.isFavoriteResolver?.call(food.recipeId) ?? _isFavorite;
 
   void _shareRecipe() async {
     final Uri recipeUrl = Uri(
@@ -850,9 +883,13 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
     );
     final String text = 'shareRecipeMessage'.tr(args: [recipeUrl.toString()]);
     try {
-      await SharePlus.instance.share(
-        ShareParams(text: text, subject: foodName),
-      );
+      if (widget.shareRecipeHandler != null) {
+        await widget.shareRecipeHandler!(recipeUrl, foodName, text);
+      } else {
+        await SharePlus.instance.share(
+          ShareParams(text: text, subject: foodName),
+        );
+      }
     } catch (e, s) {
       AppLogger.e('Share failed', e, s);
       await Clipboard.setData(ClipboardData(text: recipeUrl.toString()));
@@ -867,10 +904,14 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
     setState(() {
       // Rebuild the FAB immediately after persistence.
     });
-    await FavoritesStore.toggleFavorite(
-      food: food,
-      category: _primaryCategoryLabel,
-    );
+    if (widget.onToggleFavorite != null) {
+      await widget.onToggleFavorite!(food, _primaryCategoryLabel);
+    } else {
+      await FavoritesStore.toggleFavorite(
+        food: food,
+        category: _primaryCategoryLabel,
+      );
+    }
     if (!mounted) return;
     setState(() {});
   }
@@ -888,10 +929,12 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
   Widget _buildFavoriteFab() {
     return FloatingActionButton.small(
       heroTag: 'favFab',
-      backgroundColor: _isFavorite ? Colors.amber : Colors.white,
-      foregroundColor: _isFavorite ? Colors.white : Colors.grey,
+      backgroundColor: _resolvedIsFavorite ? Colors.amber : Colors.white,
+      foregroundColor: _resolvedIsFavorite ? Colors.white : Colors.grey,
       onPressed: _favorite,
-      child: Icon(_isFavorite ? Icons.favorite : Icons.favorite_border_rounded),
+      child: Icon(
+        _resolvedIsFavorite ? Icons.favorite : Icons.favorite_border_rounded,
+      ),
     );
   }
 }

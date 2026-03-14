@@ -20,7 +20,31 @@ class AppRouter {
   AppRouter(this._bootstrapController);
 
   final AppBootstrapController _bootstrapController;
-  final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> rootNavigatorKey =
+      GlobalKey<NavigatorState>();
+
+  static String? resolveRedirect({
+    required bool isLoading,
+    required bool requiresUpdate,
+    required bool hasSeenOnboarding,
+    required String path,
+  }) {
+    if (isLoading) {
+      return path == AppRoutes.splash ? null : AppRoutes.splash;
+    }
+    if (requiresUpdate) {
+      return path == AppRoutes.forceUpdate ? null : AppRoutes.forceUpdate;
+    }
+    if (!hasSeenOnboarding) {
+      return path == AppRoutes.onboarding ? null : AppRoutes.onboarding;
+    }
+    if (path == AppRoutes.splash ||
+        path == AppRoutes.forceUpdate ||
+        path == AppRoutes.onboarding) {
+      return AppRoutes.home;
+    }
+    return null;
+  }
 
   late final GoRouter router = GoRouter(
     navigatorKey: rootNavigatorKey,
@@ -63,11 +87,18 @@ class AppRouter {
       GoRoute(
         path: '/recipe/:id',
         builder: (context, state) {
-          final int recipeId = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          final int recipeId =
+              int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
           final String category = state.uri.queryParameters['category'] ?? '';
-          final Food? extraFood = state.extra is Food ? state.extra as Food : null;
+          final Food? extraFood = state.extra is Food
+              ? state.extra as Food
+              : null;
           final Food startFood = extraFood ?? Food.empty();
-          return SelectedFoodScreen(startFood, recipeId: recipeId, category: category);
+          return SelectedFoodScreen(
+            startFood,
+            recipeId: recipeId,
+            category: category,
+          );
         },
       ),
       GoRoute(
@@ -89,27 +120,20 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.feedback,
         builder: (context, state) {
-          final int recipeId = int.tryParse(state.uri.queryParameters['recipeId'] ?? '') ?? 0;
+          final int recipeId =
+              int.tryParse(state.uri.queryParameters['recipeId'] ?? '') ?? 0;
           final String category = state.uri.queryParameters['category'] ?? '';
           return FeedbackScreen(recipeId: recipeId, category: category);
         },
       ),
     ],
     redirect: (context, state) {
-      final String path = state.uri.path;
-      if (_bootstrapController.isLoading) {
-        return path == AppRoutes.splash ? null : AppRoutes.splash;
-      }
-      if (_bootstrapController.requiresUpdate) {
-        return path == AppRoutes.forceUpdate ? null : AppRoutes.forceUpdate;
-      }
-      if (!_bootstrapController.hasSeenOnboarding) {
-        return path == AppRoutes.onboarding ? null : AppRoutes.onboarding;
-      }
-      if (path == AppRoutes.splash || path == AppRoutes.forceUpdate || path == AppRoutes.onboarding) {
-        return AppRoutes.home;
-      }
-      return null;
+      return resolveRedirect(
+        isLoading: _bootstrapController.isLoading,
+        requiresUpdate: _bootstrapController.requiresUpdate,
+        hasSeenOnboarding: _bootstrapController.hasSeenOnboarding,
+        path: state.uri.path,
+      );
     },
   );
 }
