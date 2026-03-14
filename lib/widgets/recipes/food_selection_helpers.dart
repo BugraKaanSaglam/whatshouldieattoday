@@ -282,28 +282,35 @@ class _IngredientSearchDropdownState extends State<IngredientSearchDropdown> {
                 },
               ),
               const SizedBox(height: 16),
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'selectedIngredients'.tr(),
                     style: theme.textTheme.titleMedium,
                   ),
-                  const Spacer(),
-                  if (_totalIngredients != null)
-                    Text(
-                      '${'totalIngredients'.tr()}: $_totalIngredients',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: Colors.blueGrey.shade700,
-                      ),
-                    ),
-                  if (selectedItems.isNotEmpty) ...[
-                    const SizedBox(width: 8),
-                    TextButton.icon(
-                      onPressed: () => _updateSelection(const <Ingredient>[]),
-                      icon: const Icon(Icons.clear_rounded, size: 18),
-                      label: Text('selectionSecondaryAction'.tr()),
-                    ),
-                  ],
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (_totalIngredients != null)
+                        Text(
+                          '${'totalIngredients'.tr()}: $_totalIngredients',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: Colors.blueGrey.shade700,
+                          ),
+                        ),
+                      if (selectedItems.isNotEmpty)
+                        TextButton.icon(
+                          onPressed: () =>
+                              _updateSelection(const <Ingredient>[]),
+                          icon: const Icon(Icons.clear_rounded, size: 18),
+                          label: Text('selectionSecondaryAction'.tr()),
+                        ),
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -379,24 +386,33 @@ class _SelectedIngredientsList extends StatelessWidget {
       );
     }
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: items.map((ingredient) {
-        final String ingredientName = isTurkish
-            ? ingredient.nameTr
-            : ingredient.name;
-        return InputChip(
-          label: Text(ingredientName, overflow: TextOverflow.ellipsis),
-          onDeleted: () => onRemove(ingredient),
-          deleteIcon: const Icon(Icons.close_rounded, size: 18),
-          backgroundColor: Colors.blueGrey.withValues(alpha: 0.08),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        );
-      }).toList(),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 140),
+      child: SingleChildScrollView(
+        primary: false,
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: items.map((ingredient) {
+            final String ingredientName = isTurkish
+                ? ingredient.nameTr
+                : ingredient.name;
+            return InputChip(
+              label: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 220),
+                child: Text(ingredientName, overflow: TextOverflow.ellipsis),
+              ),
+              onDeleted: () => onRemove(ingredient),
+              deleteIcon: const Icon(Icons.close_rounded, size: 18),
+              backgroundColor: Colors.blueGrey.withValues(alpha: 0.08),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }

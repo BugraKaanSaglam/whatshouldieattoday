@@ -64,36 +64,89 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
     BuildContext context,
     FoodSelectionViewModel viewModel,
   ) {
-    return Column(
-      children: [
-        _buildSelectionHero(context, viewModel),
-        const SizedBox(height: 16),
-        IngredientSearchDropdown(
-          dropdownSelectedItems: viewModel.selectedIngredients,
-          onItemsChanged: viewModel.updateSelectedIngredients,
+    return RefreshIndicator(
+      onRefresh: () => _refreshResults(viewModel),
+      displacement: 24,
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          child: _buildSelectionActions(context, viewModel),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-          child: _buildResultsSummary(context, viewModel),
-        ),
-        const SizedBox(height: 16),
-        Expanded(
+        slivers: [
+          SliverToBoxAdapter(child: _buildSelectionHero(context, viewModel)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverToBoxAdapter(
+            child: IngredientSearchDropdown(
+              dropdownSelectedItems: viewModel.selectedIngredients,
+              onItemsChanged: viewModel.updateSelectedIngredients,
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: _buildSelectionActions(context, viewModel),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              child: _buildResultsSummary(context, viewModel),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          ..._buildFoodResultSlivers(context, viewModel),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildFoodResultSlivers(
+    BuildContext context,
+    FoodSelectionViewModel viewModel,
+  ) {
+    if (viewModel.filteredFoodList.isEmpty) {
+      return [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          fillOverscroll: true,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 350),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              child: _buildFoodResults(context, viewModel),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            child: _EmptyState(
+              key: ValueKey<bool>(viewModel.isSearchedOnce),
+              icon: viewModel.isSearchedOnce
+                  ? Icons.search_off_rounded
+                  : Icons.local_dining,
+              message: viewModel.isSearchedOnce
+                  ? 'selectionResultsEmpty'.tr()
+                  : 'selectionResultsIdle'.tr(),
             ),
           ),
         ),
-      ],
-    );
+      ];
+    }
+
+    return [
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+        sliver: SliverList.separated(
+          itemCount:
+              viewModel.filteredFoodList.length +
+              (viewModel.isLoadingMore ? 1 : 0),
+          itemBuilder: (BuildContext context, int index) {
+            if (index >= viewModel.filteredFoodList.length) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            final Food food = viewModel.filteredFoodList[index];
+            return FoodListItem(food: food, index: index);
+          },
+          separatorBuilder: (BuildContext context, int index) =>
+              const SizedBox(height: 16),
+        ),
+      ),
+    ];
   }
 
   Widget _buildSelectionHero(
@@ -262,57 +315,6 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildFoodResults(
-    BuildContext context,
-    FoodSelectionViewModel viewModel,
-  ) {
-    final bool isEmpty = viewModel.filteredFoodList.isEmpty;
-    return RefreshIndicator(
-      onRefresh: () => _refreshResults(viewModel),
-      displacement: 24,
-      child: isEmpty
-          ? ListView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              padding: const EdgeInsets.only(bottom: 32, top: 24),
-              children: [
-                _EmptyState(
-                  key: ValueKey<bool>(viewModel.isSearchedOnce),
-                  icon: viewModel.isSearchedOnce
-                      ? Icons.search_off_rounded
-                      : Icons.local_dining,
-                  message: viewModel.isSearchedOnce
-                      ? 'selectionResultsEmpty'.tr()
-                      : 'selectionResultsIdle'.tr(),
-                ),
-              ],
-            )
-          : ListView.separated(
-              controller: _scrollController,
-              itemCount:
-                  viewModel.filteredFoodList.length +
-                  (viewModel.isLoadingMore ? 1 : 0),
-              padding: const EdgeInsets.only(bottom: 32),
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              itemBuilder: (BuildContext context, int index) {
-                if (index >= viewModel.filteredFoodList.length) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-                final Food food = viewModel.filteredFoodList[index];
-                return FoodListItem(food: food, index: index);
-              },
-              separatorBuilder: (BuildContext context, int index) =>
-                  const SizedBox(height: 16),
-            ),
     );
   }
 

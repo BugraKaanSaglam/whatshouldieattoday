@@ -385,7 +385,9 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
                   ? Icons.favorite
                   : Icons.favorite_border_rounded,
             ),
-            label: Text(_resolvedIsFavorite ? 'saved'.tr() : 'favorites'.tr()),
+            label: Text(
+              _resolvedIsFavorite ? 'saved'.tr() : 'favoriteAction'.tr(),
+            ),
           ),
         ),
       ],
