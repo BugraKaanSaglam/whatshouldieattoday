@@ -4,7 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'onboarding_step.freezed.dart';
 
 @freezed
-class OnboardingStep with _$OnboardingStep {
+abstract class OnboardingStep with _$OnboardingStep {
   const factory OnboardingStep({
     required String titleKey,
     required String descriptionKey,

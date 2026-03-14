@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,175 +9,299 @@ part of 'favorite.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-Favorite _$FavoriteFromJson(Map<String, dynamic> json) {
-  return _Favorite.fromJson(json);
-}
 
 /// @nodoc
 mixin _$Favorite {
-  int get recipeId => throw _privateConstructorUsedError;
-  String get category => throw _privateConstructorUsedError;
+
+ int get recipeId; String get category; Food? get cachedFood;
+/// Create a copy of Favorite
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FavoriteCopyWith<Favorite> get copyWith => _$FavoriteCopyWithImpl<Favorite>(this as Favorite, _$identity);
 
   /// Serializes this Favorite to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of Favorite
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $FavoriteCopyWith<Favorite> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Favorite&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.category, category) || other.category == category)&&(identical(other.cachedFood, cachedFood) || other.cachedFood == cachedFood));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,recipeId,category,cachedFood);
+
+@override
+String toString() {
+  return 'Favorite(recipeId: $recipeId, category: $category, cachedFood: $cachedFood)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $FavoriteCopyWith<$Res> {
-  factory $FavoriteCopyWith(Favorite value, $Res Function(Favorite) then) =
-      _$FavoriteCopyWithImpl<$Res, Favorite>;
-  @useResult
-  $Res call({int recipeId, String category});
-}
+abstract mixin class $FavoriteCopyWith<$Res>  {
+  factory $FavoriteCopyWith(Favorite value, $Res Function(Favorite) _then) = _$FavoriteCopyWithImpl;
+@useResult
+$Res call({
+ int recipeId, String category, Food? cachedFood
+});
 
+
+$FoodCopyWith<$Res>? get cachedFood;
+
+}
 /// @nodoc
-class _$FavoriteCopyWithImpl<$Res, $Val extends Favorite>
+class _$FavoriteCopyWithImpl<$Res>
     implements $FavoriteCopyWith<$Res> {
-  _$FavoriteCopyWithImpl(this._value, this._then);
+  _$FavoriteCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final Favorite _self;
+  final $Res Function(Favorite) _then;
 
-  /// Create a copy of Favorite
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? recipeId = null,
-    Object? category = null,
-  }) {
-    return _then(_value.copyWith(
-      recipeId: null == recipeId
-          ? _value.recipeId
-          : recipeId // ignore: cast_nullable_to_non_nullable
-              as int,
-      category: null == category
-          ? _value.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+/// Create a copy of Favorite
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? recipeId = null,Object? category = null,Object? cachedFood = freezed,}) {
+  return _then(_self.copyWith(
+recipeId: null == recipeId ? _self.recipeId : recipeId // ignore: cast_nullable_to_non_nullable
+as int,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String,cachedFood: freezed == cachedFood ? _self.cachedFood : cachedFood // ignore: cast_nullable_to_non_nullable
+as Food?,
+  ));
+}
+/// Create a copy of Favorite
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FoodCopyWith<$Res>? get cachedFood {
+    if (_self.cachedFood == null) {
+    return null;
   }
+
+  return $FoodCopyWith<$Res>(_self.cachedFood!, (value) {
+    return _then(_self.copyWith(cachedFood: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [Favorite].
+extension FavoritePatterns on Favorite {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Favorite value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _Favorite() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Favorite value)  $default,){
+final _that = this;
+switch (_that) {
+case _Favorite():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Favorite value)?  $default,){
+final _that = this;
+switch (_that) {
+case _Favorite() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int recipeId,  String category,  Food? cachedFood)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _Favorite() when $default != null:
+return $default(_that.recipeId,_that.category,_that.cachedFood);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int recipeId,  String category,  Food? cachedFood)  $default,) {final _that = this;
+switch (_that) {
+case _Favorite():
+return $default(_that.recipeId,_that.category,_that.cachedFood);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int recipeId,  String category,  Food? cachedFood)?  $default,) {final _that = this;
+switch (_that) {
+case _Favorite() when $default != null:
+return $default(_that.recipeId,_that.category,_that.cachedFood);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class _$$FavoriteImplCopyWith<$Res>
-    implements $FavoriteCopyWith<$Res> {
-  factory _$$FavoriteImplCopyWith(
-          _$FavoriteImpl value, $Res Function(_$FavoriteImpl) then) =
-      __$$FavoriteImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({int recipeId, String category});
+
+@JsonSerializable(explicitToJson: true)
+class _Favorite implements Favorite {
+  const _Favorite({required this.recipeId, required this.category, this.cachedFood});
+  factory _Favorite.fromJson(Map<String, dynamic> json) => _$FavoriteFromJson(json);
+
+@override final  int recipeId;
+@override final  String category;
+@override final  Food? cachedFood;
+
+/// Create a copy of Favorite
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FavoriteCopyWith<_Favorite> get copyWith => __$FavoriteCopyWithImpl<_Favorite>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$FavoriteToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Favorite&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.category, category) || other.category == category)&&(identical(other.cachedFood, cachedFood) || other.cachedFood == cachedFood));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,recipeId,category,cachedFood);
+
+@override
+String toString() {
+  return 'Favorite(recipeId: $recipeId, category: $category, cachedFood: $cachedFood)';
+}
+
+
 }
 
 /// @nodoc
-class __$$FavoriteImplCopyWithImpl<$Res>
-    extends _$FavoriteCopyWithImpl<$Res, _$FavoriteImpl>
-    implements _$$FavoriteImplCopyWith<$Res> {
-  __$$FavoriteImplCopyWithImpl(
-      _$FavoriteImpl _value, $Res Function(_$FavoriteImpl) _then)
-      : super(_value, _then);
+abstract mixin class _$FavoriteCopyWith<$Res> implements $FavoriteCopyWith<$Res> {
+  factory _$FavoriteCopyWith(_Favorite value, $Res Function(_Favorite) _then) = __$FavoriteCopyWithImpl;
+@override @useResult
+$Res call({
+ int recipeId, String category, Food? cachedFood
+});
 
-  /// Create a copy of Favorite
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? recipeId = null,
-    Object? category = null,
-  }) {
-    return _then(_$FavoriteImpl(
-      recipeId: null == recipeId
-          ? _value.recipeId
-          : recipeId // ignore: cast_nullable_to_non_nullable
-              as int,
-      category: null == category
-          ? _value.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+
+@override $FoodCopyWith<$Res>? get cachedFood;
+
 }
-
 /// @nodoc
-@JsonSerializable()
-class _$FavoriteImpl implements _Favorite {
-  const _$FavoriteImpl({required this.recipeId, required this.category});
+class __$FavoriteCopyWithImpl<$Res>
+    implements _$FavoriteCopyWith<$Res> {
+  __$FavoriteCopyWithImpl(this._self, this._then);
 
-  factory _$FavoriteImpl.fromJson(Map<String, dynamic> json) =>
-      _$$FavoriteImplFromJson(json);
+  final _Favorite _self;
+  final $Res Function(_Favorite) _then;
 
-  @override
-  final int recipeId;
-  @override
-  final String category;
-
-  @override
-  String toString() {
-    return 'Favorite(recipeId: $recipeId, category: $category)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$FavoriteImpl &&
-            (identical(other.recipeId, recipeId) ||
-                other.recipeId == recipeId) &&
-            (identical(other.category, category) ||
-                other.category == category));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, recipeId, category);
-
-  /// Create a copy of Favorite
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$FavoriteImplCopyWith<_$FavoriteImpl> get copyWith =>
-      __$$FavoriteImplCopyWithImpl<_$FavoriteImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$FavoriteImplToJson(
-      this,
-    );
-  }
+/// Create a copy of Favorite
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? recipeId = null,Object? category = null,Object? cachedFood = freezed,}) {
+  return _then(_Favorite(
+recipeId: null == recipeId ? _self.recipeId : recipeId // ignore: cast_nullable_to_non_nullable
+as int,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String,cachedFood: freezed == cachedFood ? _self.cachedFood : cachedFood // ignore: cast_nullable_to_non_nullable
+as Food?,
+  ));
 }
 
-abstract class _Favorite implements Favorite {
-  const factory _Favorite(
-      {required final int recipeId,
-      required final String category}) = _$FavoriteImpl;
+/// Create a copy of Favorite
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FoodCopyWith<$Res>? get cachedFood {
+    if (_self.cachedFood == null) {
+    return null;
+  }
 
-  factory _Favorite.fromJson(Map<String, dynamic> json) =
-      _$FavoriteImpl.fromJson;
-
-  @override
-  int get recipeId;
-  @override
-  String get category;
-
-  /// Create a copy of Favorite
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$FavoriteImplCopyWith<_$FavoriteImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  return $FoodCopyWith<$Res>(_self.cachedFood!, (value) {
+    return _then(_self.copyWith(cachedFood: value));
+  });
 }
+}
+
+// dart format on

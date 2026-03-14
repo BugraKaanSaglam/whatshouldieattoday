@@ -12,7 +12,13 @@ void main() {
       ver: 0,
       languageCode: 1,
       initialIngredients: [Ingredient(name: 'salt', nameTr: 'tuz')],
-      favorites: [Favorite(recipeId: 1, category: 'Dinner')],
+      favorites: [
+        Favorite(
+          recipeId: 1,
+          category: 'Dinner',
+          cachedFood: Food(recipeId: 1, name: 'Pasta', nameTr: 'Makarna'),
+        ),
+      ],
     );
 
     final map = db.toMap();
@@ -25,13 +31,18 @@ void main() {
         {'Ingredient': 'salt', 'Ingredient_tr': 'tuz'},
       ]),
       'Favorites': jsonEncode([
-        {'recipeId': 1, 'category': 'Dinner'},
+        {
+          'recipeId': 1,
+          'category': 'Dinner',
+          'cachedFood': {'id': 1, 'name': 'Pasta', 'name_tr': 'Makarna'},
+        },
       ]),
     });
 
     expect(restored.languageCode, 1);
     expect(restored.initialIngredients.length, 1);
     expect(restored.favorites.length, 1);
+    expect(restored.favorites.first.cachedFood?.name, 'Pasta');
   });
 
   test('Food.fromMap parses basic fields', () {

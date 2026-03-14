@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:yemek_tarifi_app/core/logging/app_logger.dart';
 
 /// Minimal maintenance payload: a flag and optional localized messages.
 class MaintenanceStatus {
@@ -24,18 +25,23 @@ class MaintenanceStatus {
 
 /// Simple Supabase-backed maintenance checker.
 class MaintenanceService {
-  MaintenanceService({SupabaseClient? client}) : _client = client ?? Supabase.instance.client;
+  MaintenanceService({SupabaseClient? client})
+    : _client = client ?? Supabase.instance.client;
 
   final SupabaseClient _client;
 
   Future<MaintenanceStatus?> fetchStatus() async {
     try {
-      final Map<String, dynamic>? data = await _client.from('app_maintenance').select('is_active').eq('id', 1).maybeSingle();
+      final Map<String, dynamic>? data = await _client
+          .from('app_maintenance')
+          .select('is_active')
+          .eq('id', 1)
+          .maybeSingle();
       if (data == null) return null;
       return MaintenanceStatus.fromMap(data);
     } catch (e) {
       // Fail open: if Supabase cannot be reached, do not block the app.
-      debugPrint('Maintenance check failed: $e');
+      AppLogger.w('Maintenance check failed', e);
       return null;
     }
   }

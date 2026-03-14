@@ -10,7 +10,7 @@ part 'food.freezed.dart';
 part 'food.g.dart';
 
 @freezed
-class Food with _$Food {
+abstract class Food with _$Food {
   const Food._();
 
   const factory Food({
@@ -24,13 +24,21 @@ class Food with _$Food {
     @Default(<String>[]) List<String> categories,
     @Default(<String>[]) List<String> cuisines,
     @Default(<Ingredient>[]) List<Ingredient> ingredients,
-    @JsonKey(name: 'ingredients_tr') @Default(<Ingredient>[]) List<Ingredient> ingredientsTr,
+    @JsonKey(name: 'ingredients_tr')
+    @Default(<Ingredient>[])
+    List<Ingredient> ingredientsTr,
     @Default(<String>[]) List<String> ingredientsRaw,
-    @JsonKey(name: 'ingredients_raw_tr') @Default(<String>[]) List<String> ingredientsRawTr,
+    @JsonKey(name: 'ingredients_raw_tr')
+    @Default(<String>[])
+    List<String> ingredientsRawTr,
     @Default(<String>[]) List<String> instructions,
-    @JsonKey(name: 'instructions_tr') @Default(<String>[]) List<String> instructionsTr,
+    @JsonKey(name: 'instructions_tr')
+    @Default(<String>[])
+    List<String> instructionsTr,
     @Default(<String>[]) List<String> cookingMethods,
-    @JsonKey(name: 'implements') @Default(<String>[]) List<String> implementsList,
+    @JsonKey(name: 'implements')
+    @Default(<String>[])
+    List<String> implementsList,
     int? numberOfSteps,
     String? servings,
     @JsonKey(name: 'servings_tr') String? servingsTr,
@@ -44,9 +52,13 @@ class Food with _$Food {
     double? sugar,
     double? fat,
     double? unsaturatedFat,
-    @JsonKey(name: 'nutrition_raw') @Default(<String, String>{}) Map<String, String> nutritionRaw,
+    @JsonKey(name: 'nutrition_raw')
+    @Default(<String, String>{})
+    Map<String, String> nutritionRaw,
     String? url,
-    @JsonKey(includeFromJson: false, includeToJson: false) @Default(CategoriesEnum.none) CategoriesEnum recipeCategory,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    @Default(CategoriesEnum.none)
+    CategoriesEnum recipeCategory,
   }) = _Food;
 
   int? get totalTimeMinutes {
@@ -62,19 +74,33 @@ class Food with _$Food {
     final int recipeId = _parseInt(idRaw) ?? 0;
 
     final String name = (map['name'] ?? map['Name'] ?? '').toString().trim();
-    final String nameTr = (map['name_tr'] ?? map['Name_tr'] ?? name).toString().trim();
+    final String nameTr = (map['name_tr'] ?? map['Name_tr'] ?? name)
+        .toString()
+        .trim();
 
     // Rating
-    final double? ratingValue = _parseNumeric(map['rating_value'] ?? map['Rating Value']);
-    final int? ratingCount = _parseInt(map['rating_count'] ?? map['Rating Count']);
+    final double? ratingValue = _parseNumeric(
+      map['rating_value'] ?? map['Rating Value'],
+    );
+    final int? ratingCount = _parseInt(
+      map['rating_count'] ?? map['Rating Count'],
+    );
 
     // Zaman
-    final int? prepTimeMinutes = _parseInt(map['prep_time'] ?? map['Preparation Time']);
-    final int? cookTimeMinutes = _parseInt(map['cook_time'] ?? map['Cooking Time']);
+    final int? prepTimeMinutes = _parseInt(
+      map['prep_time'] ?? map['Preparation Time'],
+    );
+    final int? cookTimeMinutes = _parseInt(
+      map['cook_time'] ?? map['Cooking Time'],
+    );
 
     // Category / Cuisine
-    final List<String> categories = _parseStringList(map['category'] ?? map['Category']);
-    final List<String> cuisines = _parseStringList(map['cuisine'] ?? map['Cuisine']);
+    final List<String> categories = _parseStringList(
+      map['category'] ?? map['Category'],
+    );
+    final List<String> cuisines = _parseStringList(
+      map['cuisine'] ?? map['Cuisine'],
+    );
 
     // Ingredients (structured)
     final List<Ingredient> ingredients = _buildIngredientList(
@@ -88,37 +114,68 @@ class Food with _$Food {
     );
 
     // Ingredients raw
-    final List<String> ingredientsRaw = _parseStringList(map['ingredients_raw'] ?? map['Ingredients_Raw']);
-    final List<String> ingredientsRawTr = _parseStringList(map['ingredients_raw_tr'] ?? map['Ingredients_Raw_tr']);
+    final List<String> ingredientsRaw = _parseStringList(
+      map['ingredients_raw'] ?? map['Ingredients_Raw'],
+    );
+    final List<String> ingredientsRawTr = _parseStringList(
+      map['ingredients_raw_tr'] ?? map['Ingredients_Raw_tr'],
+    );
 
     // Instructions
-    final List<String> instructions = _parseStringList(map['instructions'] ?? map['Instructions']);
-    final List<String> instructionsTr = _parseStringList(map['instructions_tr'] ?? map['Instructions_tr']);
+    final List<String> instructions = _parseStringList(
+      map['instructions'] ?? map['Instructions'],
+    );
+    final List<String> instructionsTr = _parseStringList(
+      map['instructions_tr'] ?? map['Instructions_tr'],
+    );
 
     // Cooking methods / Implements
-    final List<String> cookingMethods = _parseStringList(map['cooking_methods'] ?? map['Cooking Methods']);
-    final List<String> implementsList = _parseStringList(map['implements'] ?? map['Implements']);
+    final List<String> cookingMethods = _parseStringList(
+      map['cooking_methods'] ?? map['Cooking Methods'],
+    );
+    final List<String> implementsList = _parseStringList(
+      map['implements'] ?? map['Implements'],
+    );
 
     // Steps
-    final int? numberOfSteps = _parseInt(map['number_of_steps'] ?? map['Number of steps']);
+    final int? numberOfSteps = _parseInt(
+      map['number_of_steps'] ?? map['Number of steps'],
+    );
 
     // Servings
     final String? servings = (map['servings'] ?? map['Servings'])?.toString();
-    final String? servingsTr = (map['servings_tr'] ?? map['Servings_tr'])?.toString();
+    final String? servingsTr = (map['servings_tr'] ?? map['Servings_tr'])
+        ?.toString();
 
     // Nutrition
-    final Map<String, String> nutritionRaw = _parseNutritionText(map['nutrition_raw'] ?? map['Nutrition']);
+    final Map<String, String> nutritionRaw = _parseNutritionText(
+      map['nutrition_raw'] ?? map['Nutrition'],
+    );
 
-    final double? calories = _parseNumeric(map['calories'] ?? nutritionRaw['Calories']);
-    final double? carbohydrates = _parseNumeric(map['carbohydrates'] ?? nutritionRaw['Carbohydrates']);
-    final double? cholesterol = _parseNumeric(map['cholesterol'] ?? nutritionRaw['Cholesterol']);
+    final double? calories = _parseNumeric(
+      map['calories'] ?? nutritionRaw['Calories'],
+    );
+    final double? carbohydrates = _parseNumeric(
+      map['carbohydrates'] ?? nutritionRaw['Carbohydrates'],
+    );
+    final double? cholesterol = _parseNumeric(
+      map['cholesterol'] ?? nutritionRaw['Cholesterol'],
+    );
     final double? fiber = _parseNumeric(map['fiber'] ?? nutritionRaw['Fiber']);
-    final double? protein = _parseNumeric(map['protein'] ?? nutritionRaw['Protein']);
-    final double? saturatedFat = _parseNumeric(map['saturated_fat'] ?? nutritionRaw['Saturated Fat']);
-    final double? sodium = _parseNumeric(map['sodium'] ?? nutritionRaw['Sodium']);
+    final double? protein = _parseNumeric(
+      map['protein'] ?? nutritionRaw['Protein'],
+    );
+    final double? saturatedFat = _parseNumeric(
+      map['saturated_fat'] ?? nutritionRaw['Saturated Fat'],
+    );
+    final double? sodium = _parseNumeric(
+      map['sodium'] ?? nutritionRaw['Sodium'],
+    );
     final double? sugar = _parseNumeric(map['sugar'] ?? nutritionRaw['Sugar']);
     final double? fat = _parseNumeric(map['fat'] ?? nutritionRaw['Fat']);
-    final double? unsaturatedFat = _parseNumeric(map['unsaturated_fat'] ?? nutritionRaw['Unsaturated Fat']);
+    final double? unsaturatedFat = _parseNumeric(
+      map['unsaturated_fat'] ?? nutritionRaw['Unsaturated Fat'],
+    );
 
     final String? url = (map['url'] ?? map['URL'])?.toString();
 
@@ -199,11 +256,7 @@ class Food with _$Food {
     };
   }
 
-  factory Food.empty() => Food(
-        recipeId: 0,
-        name: '',
-        nameTr: '',
-      );
+  factory Food.empty() => Food(recipeId: 0, name: '', nameTr: '');
 
   @override
   String toString() {
@@ -268,7 +321,11 @@ List<String> _parseStringList(dynamic value) {
 
       // Fallback: koseli parantezleri atip virglden bol
       final inner = trimmed.substring(1, trimmed.length - 1);
-      return inner.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      return inner
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
     }
 
     // Tek string degerse
@@ -339,10 +396,7 @@ String _combineIngredientName(String name, String misc) {
 }
 
 /// EN + TR ingredient listelerini birlestirip Ingredient listesine cevirir.
-List<Ingredient> _buildIngredientList(
-  dynamic enValue,
-  dynamic trValue,
-) {
+List<Ingredient> _buildIngredientList(dynamic enValue, dynamic trValue) {
   final enList = _parseMapList(enValue);
   final trList = _parseMapList(trValue);
 
@@ -353,8 +407,18 @@ List<Ingredient> _buildIngredientList(
     final en = i < enList.length ? enList[i] : const <String, dynamic>{};
     final tr = i < trList.length ? trList[i] : const <String, dynamic>{};
 
-    final enNameRaw = (en['ingredient'] ?? en['Ingredient'] ?? en['value'] ?? '').toString().trim();
-    final trNameRaw = (tr['ingredient'] ?? tr['Ingredient_tr'] ?? tr['Ingredient'] ?? tr['value'] ?? '').toString().trim();
+    final enNameRaw =
+        (en['ingredient'] ?? en['Ingredient'] ?? en['value'] ?? '')
+            .toString()
+            .trim();
+    final trNameRaw =
+        (tr['ingredient'] ??
+                tr['Ingredient_tr'] ??
+                tr['Ingredient'] ??
+                tr['value'] ??
+                '')
+            .toString()
+            .trim();
     final enMisc = (en['misc'] ?? '').toString().trim();
     final trMisc = (tr['misc'] ?? '').toString().trim();
 
@@ -365,12 +429,7 @@ List<Ingredient> _buildIngredientList(
 
     // Quantity / Unit / Misc su an Ingredient'ta yoksa,
     // sadece ad / ad_tr gonderiyoruz. Sen Ingredient'i genisletirsen burayi guncelleyebilirsin.
-    result.add(
-      Ingredient(
-        name: enName,
-        nameTr: trName,
-      ),
-    );
+    result.add(Ingredient(name: enName, nameTr: trName));
   }
 
   return result;
@@ -384,10 +443,7 @@ Map<String, String> _parseNutritionText(dynamic value) {
 
   if (value is Map) {
     return value.map(
-      (key, val) => MapEntry(
-        key.toString(),
-        val?.toString() ?? '',
-      ),
+      (key, val) => MapEntry(key.toString(), val?.toString() ?? ''),
     );
   }
 
@@ -401,10 +457,7 @@ Map<String, String> _parseNutritionText(dynamic value) {
         final decoded = jsonDecode(normalized);
         if (decoded is Map) {
           return decoded.map(
-            (key, val) => MapEntry(
-              key.toString(),
-              val?.toString() ?? '',
-            ),
+            (key, val) => MapEntry(key.toString(), val?.toString() ?? ''),
           );
         }
       } catch (_) {

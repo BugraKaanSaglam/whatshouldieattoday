@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:yemek_tarifi_app/app.dart';
 import 'package:yemek_tarifi_app/core/configs/supabase_config.dart';
+import 'package:yemek_tarifi_app/core/favorites/favorites_store.dart';
 import 'package:yemek_tarifi_app/global/app_globals.dart';
 import 'package:yemek_tarifi_app/global/default_ingredients.dart';
 import 'package:yemek_tarifi_app/database/db_helper.dart';
@@ -24,7 +25,8 @@ Future<void> main() async {
   globalDataBase = await DBHelper().getList(databaseVersion);
 
   if (globalDataBase == null) {
-    final List<Ingredient> defaultInitialIngredients = buildDefaultInitialIngredients();
+    final List<Ingredient> defaultInitialIngredients =
+        buildDefaultInitialIngredients();
 
     globalDataBase = FoodApplicationDatabase(
       ver: databaseVersion,
@@ -39,9 +41,15 @@ Future<void> main() async {
   }
 
   SupabaseConfig.ensureSet();
-  await Supabase.initialize(url: SupabaseConfig.url, anonKey: SupabaseConfig.anonKey);
+  await Supabase.initialize(
+    url: SupabaseConfig.url,
+    anonKey: SupabaseConfig.anonKey,
+  );
+  await FavoritesStore.reconcileLocalState(backfillMissingCache: true);
 
-  final Language startLanguage = globalDataBase != null ? Language.getLanguageFromValue(globalDataBase!.languageCode) : deviceLanguage;
+  final Language startLanguage = globalDataBase != null
+      ? Language.getLanguageFromValue(globalDataBase!.languageCode)
+      : deviceLanguage;
   final Locale startLocale = languageToLocale(startLanguage);
 
   runApp(

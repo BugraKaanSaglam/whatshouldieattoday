@@ -1,8 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:yemek_tarifi_app/core/logging/app_logger.dart';
+import 'package:yemek_tarifi_app/global/app_globals.dart';
 import 'package:yemek_tarifi_app/models/recipe/food.dart';
 import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
-import 'package:yemek_tarifi_app/global/app_globals.dart';
 
 /// Centralized Supabase-backed data access.
 class BackendService {
@@ -13,7 +14,7 @@ class BackendService {
 
   static void _log(String message, {Object? data}) {
     if (!debugEnabled) return;
-    debugPrint('[Backend] $message${data != null ? ' | $data' : ''}');
+    AppLogger.d('[Backend] $message${data != null ? ' | $data' : ''}');
   }
 
   /// Ingredient search with TR/EN column awareness.
@@ -27,14 +28,24 @@ class BackendService {
 
     _log('searchIngredients', data: {'query': query, 'searchName': searchName});
 
-    final List<Map<String, dynamic>> response = await _client.from(tableName).select().ilike(searchName, '%$query%').limit(50);
+    final List<Map<String, dynamic>> response = await _client
+        .from(tableName)
+        .select()
+        .ilike(searchName, '%$query%')
+        .limit(50);
 
     _log('searchIngredients response count', data: response.length);
 
     return response
         .map((item) {
-          final String en = item['Ingredients']?.toString() ?? item['Ingredient']?.toString() ?? '';
-          final String tr = item['Ingredients_tr']?.toString() ?? item['Ingredient_tr']?.toString() ?? '';
+          final String en =
+              item['Ingredients']?.toString() ??
+              item['Ingredient']?.toString() ??
+              '';
+          final String tr =
+              item['Ingredients_tr']?.toString() ??
+              item['Ingredient_tr']?.toString() ??
+              '';
           return Ingredient(name: en, nameTr: tr);
         })
         .where((ing) => ing.name.isNotEmpty || ing.nameTr.isNotEmpty)
@@ -54,24 +65,38 @@ class BackendService {
     bool rpcFailed = false;
 
     try {
-      _log('fetchRecipes RPC start', data: {'offset': offset, 'limit': limit, 'ingredients': ingredients});
-      final dynamic response = await _client.rpc(recipeSearchFunctionName, params: {'ingredients': ingredients}).range(offset, rangeEnd);
+      _log(
+        'fetchRecipes RPC start',
+        data: {'offset': offset, 'limit': limit, 'ingredients': ingredients},
+      );
+      final dynamic response = await _client
+          .rpc(recipeSearchFunctionName, params: {'ingredients': ingredients})
+          .range(offset, rangeEnd);
       if (response is List) rawResults = response;
       _log('fetchRecipes RPC ok', data: rawResults.length);
     } on PostgrestException catch (e) {
       rpcFailed = true;
       // Statement timeout: surface to user instead of returning unrelated rows.
       if (e.code == '57014') {
-        throw Exception('Tarif araması zaman aşımına uğradı. Lütfen daha az malzeme seçerek tekrar deneyin.');
+        throw Exception(
+          'Tarif araması zaman aşımına uğradı. Lütfen daha az malzeme seçerek tekrar deneyin.',
+        );
       }
-      _log('fetchRecipes RPC failed, fallback to table', data: {'code': e.code, 'message': e.message});
+      _log(
+        'fetchRecipes RPC failed, fallback to table',
+        data: {'code': e.code, 'message': e.message},
+      );
     } catch (e) {
       rpcFailed = true;
       _log('fetchRecipes RPC failed, fallback to table', data: e.toString());
     }
 
     if (rpcFailed) {
-      rawResults = await _fetchRecipesFallback(ingredients: ingredients, offset: offset, limit: limit);
+      rawResults = await _fetchRecipesFallback(
+        ingredients: ingredients,
+        offset: offset,
+        limit: limit,
+      );
     }
 
     final List<Food> validRecipes = <Food>[];
@@ -92,29 +117,53 @@ class BackendService {
     required int limit,
   }) async {
     final int rangeEnd = offset + limit - 1;
-    const List<String> fallbackColumns = ['ingredients_tokens', 'ingredients', 'ingredients_raw'];
+    const List<String> fallbackColumns = [
+      'ingredients_tokens',
+      'ingredients',
+      'ingredients_raw',
+    ];
 
     for (final column in fallbackColumns) {
       try {
-        _log('fetchRecipes fallback try', data: {'column': column, 'ingredients': ingredients});
-        final dynamic response = await _client.from(recipesTableName).select().contains(column, ingredients).range(offset, rangeEnd);
+        _log(
+          'fetchRecipes fallback try',
+          data: {'column': column, 'ingredients': ingredients},
+        );
+        final dynamic response = await _client
+            .from(recipesTableName)
+            .select()
+            .contains(column, ingredients)
+            .range(offset, rangeEnd);
         if (response is List) {
-          _log('fetchRecipes fallback ok', data: {'column': column, 'count': response.length});
+          _log(
+            'fetchRecipes fallback ok',
+            data: {'column': column, 'count': response.length},
+          );
           return response;
         }
       } catch (e) {
-        _log('fetchRecipes fallback failed', data: {'column': column, 'error': e.toString()});
+        _log(
+          'fetchRecipes fallback failed',
+          data: {'column': column, 'error': e.toString()},
+        );
       }
     }
 
-    throw Exception('Tarif araması geçici olarak kullanılamıyor. Lütfen daha sonra tekrar deneyin.');
+    throw Exception(
+      'Tarif araması geçici olarak kullanılamıyor. Lütfen daha sonra tekrar deneyin.',
+    );
   }
 
   /// Fetch only total count via RPC (requires SQL function `get_recipes_count`).
-  static Future<int?> fetchRecipesCount({required List<String> ingredients}) async {
+  static Future<int?> fetchRecipesCount({
+    required List<String> ingredients,
+  }) async {
     try {
       _log('fetchRecipesCount RPC start', data: {'ingredients': ingredients});
-      final dynamic response = await _client.rpc('get_recipes_count', params: {'ingredients': ingredients});
+      final dynamic response = await _client.rpc(
+        'get_recipes_count',
+        params: {'ingredients': ingredients},
+      );
       if (response is int) {
         _log('fetchRecipesCount RPC ok', data: response);
         return response;
@@ -146,13 +195,20 @@ class BackendService {
     try {
       return await _client.from(tableName).count();
     } catch (e) {
-      _log('fetchTableCount failed', data: {'table': tableName, 'error': e.toString()});
+      _log(
+        'fetchTableCount failed',
+        data: {'table': tableName, 'error': e.toString()},
+      );
     }
     return null;
   }
 
   /// Submit feedback to Supabase.
-  static Future<void> submitFeedback({required int recipeId, required String? email, required String message}) async {
+  static Future<void> submitFeedback({
+    required int recipeId,
+    required String? email,
+    required String message,
+  }) async {
     _log('submitFeedback', data: {'recipeId': recipeId});
     await _client.from('Feedback').insert({
       'RecipeId': recipeId,

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:yemek_tarifi_app/core/logging/app_logger.dart';
 import 'package:yemek_tarifi_app/core/network/backend_service.dart';
 import 'package:yemek_tarifi_app/models/recipe/food.dart';
 import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
@@ -18,7 +19,8 @@ class FoodSelectionViewModel extends ChangeNotifier {
   bool _isLoadingMore = false;
   int? _totalMatches;
 
-  List<Ingredient> get selectedIngredients => List.unmodifiable(_formDTO.ingredients);
+  List<Ingredient> get selectedIngredients =>
+      List.unmodifiable(_formDTO.ingredients);
   List<Food> get filteredFoodList => List.unmodifiable(_filteredFoodList);
   bool get isSearchedOnce => _isSearchedOnce;
   bool get hasMore => _hasMore;
@@ -43,17 +45,24 @@ class FoodSelectionViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final List<String> selectedIngredients = _formDTO.ingredients.map((e) => e.name).toList();
+      final List<String> selectedIngredients = _formDTO.ingredients
+          .map((e) => e.name)
+          .toList();
       if (selectedIngredients.isEmpty) throw Exception('noIngSelected'.tr());
 
       try {
-        final int? count = await BackendService.fetchRecipesCount(ingredients: selectedIngredients);
+        final int? count = await BackendService.fetchRecipesCount(
+          ingredients: selectedIngredients,
+        );
         _totalMatches = count;
       } catch (e) {
         _logFilter('count rpc failed', e.toString());
       }
 
-      final filteredFoods = await _fetchFilteredFoods(offset: 0, limit: _pageSize);
+      final filteredFoods = await _fetchFilteredFoods(
+        offset: 0,
+        limit: _pageSize,
+      );
       _filteredFoodList
         ..clear()
         ..addAll(filteredFoods);
@@ -71,9 +80,13 @@ class FoodSelectionViewModel extends ChangeNotifier {
   Future<void> refreshResults() async {
     if (!isSearchedOnce) return;
     try {
-      final List<String> selectedIngredients = _formDTO.ingredients.map((e) => e.name).toList();
+      final List<String> selectedIngredients = _formDTO.ingredients
+          .map((e) => e.name)
+          .toList();
       try {
-        final int? count = await BackendService.fetchRecipesCount(ingredients: selectedIngredients);
+        final int? count = await BackendService.fetchRecipesCount(
+          ingredients: selectedIngredients,
+        );
         _totalMatches = count;
       } catch (e) {
         _logFilter('count rpc failed refresh', e.toString());
@@ -97,7 +110,10 @@ class FoodSelectionViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final nextOffset = _currentPage * _pageSize;
-      final newFoods = await _fetchFilteredFoods(offset: nextOffset, limit: _pageSize);
+      final newFoods = await _fetchFilteredFoods(
+        offset: nextOffset,
+        limit: _pageSize,
+      );
       _filteredFoodList.addAll(newFoods);
       _currentPage++;
       _hasMore = newFoods.length == _pageSize;
@@ -109,22 +125,39 @@ class FoodSelectionViewModel extends ChangeNotifier {
     }
   }
 
-  Future<List<Food>> _fetchFilteredFoods({required int offset, required int limit}) async {
-    final List<String> selectedIngredients = _formDTO.ingredients.map((e) => e.name).toList();
+  Future<List<Food>> _fetchFilteredFoods({
+    required int offset,
+    required int limit,
+  }) async {
+    final List<String> selectedIngredients = _formDTO.ingredients
+        .map((e) => e.name)
+        .toList();
     if (selectedIngredients.isEmpty) throw Exception('noIngSelected'.tr());
-    final List<Food> recipes = await BackendService.fetchRecipes(ingredients: selectedIngredients, offset: offset, limit: limit);
+    final List<Food> recipes = await BackendService.fetchRecipes(
+      ingredients: selectedIngredients,
+      offset: offset,
+      limit: limit,
+    );
     List<Food> filtered = List<Food>.from(recipes);
 
     filtered.sort((a, b) {
-      final String catA = a.categories.isNotEmpty ? a.categories.first.toLowerCase() : '';
-      final String catB = b.categories.isNotEmpty ? b.categories.first.toLowerCase() : '';
+      final String catA = a.categories.isNotEmpty
+          ? a.categories.first.toLowerCase()
+          : '';
+      final String catB = b.categories.isNotEmpty
+          ? b.categories.first.toLowerCase()
+          : '';
       final int catCompare = catA.compareTo(catB);
       if (catCompare != 0) return catCompare;
       return a.name.toLowerCase().compareTo(b.name.toLowerCase());
     });
 
     if (_filterDebugEnabled) {
-      _logFilter('backend returned', {'count': recipes.length, 'offset': offset, 'limit': limit});
+      _logFilter('backend returned', {
+        'count': recipes.length,
+        'offset': offset,
+        'limit': limit,
+      });
       _logFilter('after client filter', {'count': filtered.length});
     }
 
@@ -147,6 +180,6 @@ class FoodSelectionViewModel extends ChangeNotifier {
 
   void _logFilter(String message, Object? data) {
     if (!_filterDebugEnabled) return;
-    debugPrint('[Filter] $message${data != null ? ' | $data' : ''}');
+    AppLogger.d('[Filter] $message${data != null ? ' | $data' : ''}');
   }
 }

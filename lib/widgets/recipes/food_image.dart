@@ -9,7 +9,12 @@ class FoodImage extends StatefulWidget {
   final bool isSingleImage;
   final String? cacheKey;
 
-  const FoodImage({super.key, required this.imageUrls, this.isSingleImage = true, this.cacheKey});
+  const FoodImage({
+    super.key,
+    required this.imageUrls,
+    this.isSingleImage = true,
+    this.cacheKey,
+  });
 
   @override
   FoodImageState createState() => FoodImageState();
@@ -17,9 +22,14 @@ class FoodImage extends StatefulWidget {
 
 class FoodImageState extends State<FoodImage> {
   static final BaseCacheManager _cacheManager = CacheManager(
-    Config('recipeImagesCache', stalePeriod: const Duration(days: 30), maxNrOfCacheObjects: 400),
+    Config(
+      'recipeImagesCache',
+      stalePeriod: const Duration(days: 30),
+      maxNrOfCacheObjects: 400,
+    ),
   );
-  static final LinkedHashMap<String, ImageProvider> _memoryImageCache = LinkedHashMap<String, ImageProvider>();
+  static final LinkedHashMap<String, ImageProvider> _memoryImageCache =
+      LinkedHashMap<String, ImageProvider>();
   static const int _memoryCacheLimit = 150;
 
   int _currentIndex = 0;
@@ -86,7 +96,8 @@ class FoodImageState extends State<FoodImage> {
       return Image.asset(
         imageUrl,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Image.asset(AppImages.defaultFood, fit: BoxFit.cover),
+        errorBuilder: (_, _, _) =>
+            Image.asset(AppImages.defaultFood, fit: BoxFit.cover),
       );
     }
     final cacheKey = _cacheKeyFor(imageUrl, index: index);
@@ -106,7 +117,8 @@ class FoodImageState extends State<FoodImage> {
         _storeInMemoryCache(cacheKey, provider);
         return Image(image: provider, fit: BoxFit.cover);
       },
-      placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator(strokeWidth: 2)),
       errorWidget: (context, url, error) {
         if (index != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -166,7 +178,8 @@ class FoodImageState extends State<FoodImage> {
             controller: _pageController,
             itemCount: validImages.length,
             onPageChanged: (index) => setState(() => _currentIndex = index),
-            itemBuilder: (context, index) => _buildImageWidget(validImages[index], index: index),
+            itemBuilder: (context, index) =>
+                _buildImageWidget(validImages[index], index: index),
           ),
         ),
         if (validImages.length > 1)
@@ -182,7 +195,9 @@ class FoodImageState extends State<FoodImage> {
                   height: _currentIndex == i ? 12.0 : 8.0,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _currentIndex == i ? Theme.of(context).primaryColor : Colors.grey,
+                    color: _currentIndex == i
+                        ? Theme.of(context).primaryColor
+                        : Colors.grey,
                   ),
                 ),
               ),

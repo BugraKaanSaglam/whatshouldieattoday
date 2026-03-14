@@ -7,6 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yemek_tarifi_app/core/configs/router/app_routes.dart';
+import 'package:yemek_tarifi_app/core/network/connection_monitor.dart';
 import 'package:yemek_tarifi_app/core/network/maintenance_service.dart';
 import 'package:yemek_tarifi_app/providers/home/main_viewmodel.dart';
 import 'package:yemek_tarifi_app/global/app_globals.dart';
@@ -14,11 +15,19 @@ import 'package:yemek_tarifi_app/core/utils/media_query_size.dart';
 import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
+import 'package:yemek_tarifi_app/widgets/offline/offline_favorites_view.dart';
 
 class MainScreen extends StatefulWidget {
   final MaintenanceStatus? maintenanceStatus;
+  final MainViewModel? viewModel;
+  final ConnectionMonitor? connectionMonitor;
 
-  const MainScreen({super.key, this.maintenanceStatus});
+  const MainScreen({
+    super.key,
+    this.maintenanceStatus,
+    this.viewModel,
+    this.connectionMonitor,
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -26,16 +35,21 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late final MainViewModel _viewModel;
+  late final ConnectionMonitor _connectionMonitor;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = MainViewModel()..init();
+    _viewModel = widget.viewModel ?? MainViewModel();
+    _connectionMonitor = widget.connectionMonitor ?? ConnectionMonitor.shared;
+    _viewModel.init();
   }
 
   @override
   void dispose() {
-    _viewModel.dispose();
+    if (widget.viewModel == null) {
+      _viewModel.dispose();
+    }
     super.dispose();
   }
 
@@ -48,19 +62,34 @@ class _MainScreenState extends State<MainScreen> {
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Consumer<MainViewModel>(
-        builder: (context, viewModel, _) => AppScaffold(
-          appBar: MainAppBar(title: 'appName'.tr(), hasBackButton: false),
-          body: mainBody(context, isMaintenance, viewModel),
-          bottomBar: isMaintenance ? _buildMaintenanceBar(context, maintenanceMessage) : null,
+        builder: (context, viewModel, _) => AnimatedBuilder(
+          animation: _connectionMonitor,
+          builder: (context, _) => AppScaffold(
+            appBar: MainAppBar(title: 'appName'.tr(), hasBackButton: false),
+            body: _connectionMonitor.isOnline
+                ? mainBody(context, isMaintenance, viewModel)
+                : OfflineFavoritesView(
+                    onFavoritesChanged: () => setState(() {}),
+                  ),
+            bottomBar: isMaintenance
+                ? _buildMaintenanceBar(context, maintenanceMessage)
+                : null,
+          ),
         ),
       ),
     );
   }
 
-  Widget mainBody(BuildContext context, bool isMaintenance, MainViewModel viewModel) {
+  Widget mainBody(
+    BuildContext context,
+    bool isMaintenance,
+    MainViewModel viewModel,
+  ) {
     final int ingredientsCount = globalDataBase?.initialIngredients.length ?? 0;
     final int? totalCount = viewModel.totalRecipeCount;
-    final String totalRecipesLabel = totalCount == null ? 'loading'.tr() : '$totalCount ${'recipes'.tr()}';
+    final String totalRecipesLabel = totalCount == null
+        ? 'loading'.tr()
+        : '$totalCount ${'recipes'.tr()}';
 
     final List<_MenuItemData> menuItems = [
       _MenuItemData(
@@ -85,7 +114,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.kitchen_outlined,
         gradientColors: const [Color(0xFF8B5CF6), Color(0xFF6366F1)],
         highlightIfEmpty: true,
-        chipLabel: 'storedIngredientsCount'.tr(args: [ingredientsCount.toString()]),
+        chipLabel: 'storedIngredientsCount'.tr(
+          args: [ingredientsCount.toString()],
+        ),
         disabled: isMaintenance,
       ),
       _MenuItemData(
@@ -108,7 +139,10 @@ class _MainScreenState extends State<MainScreen> {
       ),
     ];
 
-    return SingleChildScrollView(padding: const EdgeInsets.fromLTRB(20, 24, 20, 120), child: _buildMenuGrid(menuItems, viewModel.isBlinking));
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 120),
+      child: _buildMenuGrid(menuItems, viewModel.isBlinking),
+    );
   }
 
   Widget _buildMenuGrid(List<_MenuItemData> menuItems, bool isBlinking) {
@@ -133,16 +167,16 @@ class _MainScreenState extends State<MainScreen> {
               item: item,
               onTap: item.disabled
                   ? null
-              : () async {
-                  if (item.onTapOverride != null) {
-                    item.onTapOverride!.call();
-                    return;
-                  }
-                  if (item.routePath == null) return;
-                  await context.push(item.routePath!);
-                  if (!mounted) return;
-                  setState(() {});
-                },
+                  : () async {
+                      if (item.onTapOverride != null) {
+                        item.onTapOverride!.call();
+                        return;
+                      }
+                      if (item.routePath == null) return;
+                      await context.push(item.routePath!);
+                      if (!mounted) return;
+                      setState(() {});
+                    },
             ),
           ),
         );
@@ -181,14 +215,27 @@ class _MainScreenState extends State<MainScreen> {
           decoration: BoxDecoration(
             color: barColor,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: barColor.withValues(alpha: 0.26), blurRadius: 12, offset: const Offset(0, 6))],
+            boxShadow: [
+              BoxShadow(
+                color: barColor.withValues(alpha: 0.26),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.16), shape: BoxShape.circle),
-                child: const Icon(Icons.build_circle_rounded, color: Colors.white, size: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.build_circle_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -196,11 +243,19 @@ class _MainScreenState extends State<MainScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('maintenanceBadge'.tr(), style: theme.textTheme.labelLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+                    Text(
+                      'maintenanceBadge'.tr(),
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       staticDescription,
-                      style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.white,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -213,7 +268,6 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-
 }
 
 class _MenuItemData {
@@ -277,16 +331,27 @@ class _DashboardTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final bool disabled = item.disabled;
-    final List<Color> colors = disabled ? [Colors.grey.shade400, Colors.grey.shade500] : item.gradientColors;
+    final List<Color> colors = disabled
+        ? [Colors.grey.shade400, Colors.grey.shade500]
+        : item.gradientColors;
     return InkWell(
       borderRadius: BorderRadius.circular(28),
       onTap: onTap == null ? null : () async => await onTap!(),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: colors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: colors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
-            BoxShadow(color: (disabled ? Colors.grey : item.gradientColors.last).withValues(alpha: 0.28), blurRadius: 24, offset: const Offset(0, 12)),
+            BoxShadow(
+              color: (disabled ? Colors.grey : item.gradientColors.last)
+                  .withValues(alpha: 0.28),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
+            ),
           ],
         ),
         child: Stack(
@@ -297,7 +362,10 @@ class _DashboardTile extends StatelessWidget {
               child: Container(
                 width: 110,
                 height: 110,
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.12), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
             Positioned(
@@ -306,7 +374,10 @@ class _DashboardTile extends StatelessWidget {
               child: Container(
                 width: 90,
                 height: 90,
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.08), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
             Padding(
@@ -319,13 +390,19 @@ class _DashboardTile extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.22), shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.22),
+                        shape: BoxShape.circle,
+                      ),
                       child: Icon(item.icon, color: Colors.white, size: 28),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       item.title,
-                      style: textTheme.titleLarge?.copyWith(color: Colors.white, fontSize: 17),
+                      style: textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontSize: 17,
+                      ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -333,16 +410,30 @@ class _DashboardTile extends StatelessWidget {
                     if (disabled) ...[
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.25), borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.lock_clock_rounded, size: 14, color: Colors.white),
+                            const Icon(
+                              Icons.lock_clock_rounded,
+                              size: 14,
+                              color: Colors.white,
+                            ),
                             const SizedBox(width: 6),
                             Text(
                               'maintenanceBadge'.tr(),
-                              style: textTheme.bodySmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 11),
+                              style: textTheme.bodySmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -355,11 +446,21 @@ class _DashboardTile extends StatelessWidget {
                       _PulsingBadge(
                         enabled: item.chipBlinking,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                           child: Text(
                             item.chipLabel!,
-                            style: textTheme.bodySmall?.copyWith(color: AppTheme.seedColor, fontWeight: FontWeight.w700, fontSize: 12),
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppTheme.seedColor,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -388,13 +489,17 @@ class _PulsingBadge extends StatefulWidget {
   State<_PulsingBadge> createState() => _PulsingBadgeState();
 }
 
-class _PulsingBadgeState extends State<_PulsingBadge> with SingleTickerProviderStateMixin {
+class _PulsingBadgeState extends State<_PulsingBadge>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
     if (widget.enabled) _controller.repeat(reverse: true);
   }
 
@@ -423,7 +528,10 @@ class _PulsingBadgeState extends State<_PulsingBadge> with SingleTickerProviderS
         final double opacity = 0.7 + (0.3 * (_controller.value));
         return Opacity(
           opacity: widget.enabled ? opacity : 1,
-          child: Transform.scale(scale: widget.enabled ? scale : 1, child: child),
+          child: Transform.scale(
+            scale: widget.enabled ? scale : 1,
+            child: child,
+          ),
         );
       },
       child: widget.child,

@@ -6,18 +6,44 @@ import 'package:yemek_tarifi_app/core/network/maintenance_service.dart';
 import 'package:yemek_tarifi_app/core/network/onboarding_service.dart';
 import 'package:yemek_tarifi_app/core/network/version_service.dart';
 
+typedef PackageInfoLoader = Future<PackageInfo> Function();
+typedef MaintenanceStatusLoader = Future<MaintenanceStatus?> Function();
+typedef VersionStatusLoader = Future<VersionStatus?> Function();
+typedef OnboardingSeenLoader = Future<bool> Function();
+
 class AppBootstrapController extends ChangeNotifier {
   AppBootstrapController({
-    required MaintenanceService maintenanceService,
-    required VersionService versionService,
-    required OnboardingService onboardingService,
-  })  : _maintenanceService = maintenanceService,
-        _versionService = versionService,
-        _onboardingService = onboardingService;
+    MaintenanceService? maintenanceService,
+    VersionService? versionService,
+    OnboardingService? onboardingService,
+    MaintenanceStatusLoader? maintenanceStatusLoader,
+    VersionStatusLoader? versionStatusLoader,
+    OnboardingSeenLoader? onboardingSeenLoader,
+    PackageInfoLoader? packageInfoLoader,
+  }) : assert(
+         maintenanceService != null || maintenanceStatusLoader != null,
+         'maintenanceService or maintenanceStatusLoader is required',
+       ),
+       assert(
+         versionService != null || versionStatusLoader != null,
+         'versionService or versionStatusLoader is required',
+       ),
+       assert(
+         onboardingService != null || onboardingSeenLoader != null,
+         'onboardingService or onboardingSeenLoader is required',
+       ),
+       _maintenanceStatusLoader =
+           maintenanceStatusLoader ?? maintenanceService!.fetchStatus,
+       _versionStatusLoader =
+           versionStatusLoader ?? versionService!.fetchRequiredVersion,
+       _onboardingSeenLoader =
+           onboardingSeenLoader ?? onboardingService!.hasSeenOnboarding,
+       _packageInfoLoader = packageInfoLoader ?? PackageInfo.fromPlatform;
 
-  final MaintenanceService _maintenanceService;
-  final VersionService _versionService;
-  final OnboardingService _onboardingService;
+  final MaintenanceStatusLoader _maintenanceStatusLoader;
+  final VersionStatusLoader _versionStatusLoader;
+  final OnboardingSeenLoader _onboardingSeenLoader;
+  final PackageInfoLoader _packageInfoLoader;
 
   AppBootstrapData? _data;
   bool _isLoading = true;
@@ -42,20 +68,23 @@ class AppBootstrapController extends ChangeNotifier {
   }
 
   Future<AppBootstrapData> _fetchBootstrapData() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    final String localVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
+    final packageInfo = await _packageInfoLoader();
+    final String localVersion =
+        '${packageInfo.version}+${packageInfo.buildNumber}';
     final String displayVersion = packageInfo.version;
 
-    final maintenanceFuture = _maintenanceService.fetchStatus();
-    final versionFuture = _versionService.fetchRequiredVersion();
-    final onboardingFuture = _onboardingService.hasSeenOnboarding();
+    final maintenanceFuture = _maintenanceStatusLoader();
+    final versionFuture = _versionStatusLoader();
+    final onboardingFuture = _onboardingSeenLoader();
 
     final MaintenanceStatus? maintenance = await maintenanceFuture;
     final VersionStatus? versionStatus = await versionFuture;
     final bool hasSeenOnboarding = await onboardingFuture;
 
     final String? requiredVersion = versionStatus?.requiredVersion;
-    final bool needsUpdate = requiredVersion != null && _compareVersions(localVersion, requiredVersion) < 0;
+    final bool needsUpdate =
+        requiredVersion != null &&
+        _compareVersions(localVersion, requiredVersion) < 0;
 
     return AppBootstrapData(
       maintenanceStatus: maintenance,
@@ -79,7 +108,9 @@ class AppBootstrapController extends ChangeNotifier {
 
     final List<int> currentParts = parse(current);
     final List<int> targetParts = parse(target);
-    final int maxLength = currentParts.length > targetParts.length ? currentParts.length : targetParts.length;
+    final int maxLength = currentParts.length > targetParts.length
+        ? currentParts.length
+        : targetParts.length;
 
     for (int i = 0; i < maxLength; i++) {
       final int c = i < currentParts.length ? currentParts[i] : 0;
