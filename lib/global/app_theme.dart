@@ -24,18 +24,69 @@ class AppTheme {
   );
 
   static ThemeData lightTheme = () {
-    final baseColorScheme = ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.light);
+    final baseColorScheme = ColorScheme.fromSeed(
+      seedColor: seedColor,
+      brightness: Brightness.light,
+    );
     return ThemeData(
       useMaterial3: true,
-      colorScheme: baseColorScheme.copyWith(secondary: secondaryColor, tertiary: accentColor, surfaceTint: seedColor),
+      colorScheme: baseColorScheme.copyWith(
+        secondary: secondaryColor,
+        tertiary: accentColor,
+        surfaceTint: seedColor,
+      ),
       scaffoldBackgroundColor: Colors.transparent,
       textTheme: const TextTheme(
-        displayLarge: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-        headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Color(0xFF111827)),
-        titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1F2937)),
-        bodyLarge: TextStyle(fontSize: 16, height: 1.5, color: Color(0xFF1F2937)),
-        bodyMedium: TextStyle(fontSize: 14, height: 1.5, color: Color(0xFF4B5563)),
-        labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+        displayLarge: TextStyle(
+          fontSize: 30,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF0F172A),
+        ),
+        headlineMedium: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF111827),
+        ),
+        titleLarge: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF1F2937),
+        ),
+        titleMedium: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF1F2937),
+        ),
+        bodyLarge: TextStyle(
+          fontSize: 16,
+          height: 1.5,
+          color: Color(0xFF1F2937),
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          height: 1.5,
+          color: Color(0xFF4B5563),
+        ),
+        bodySmall: TextStyle(
+          fontSize: 12,
+          height: 1.4,
+          color: Color(0xFF64748B),
+        ),
+        labelLarge: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        labelMedium: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF475569),
+        ),
+        labelSmall: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF64748B),
+        ),
       ),
       cardTheme: CardThemeData(
         elevation: 8,
@@ -51,13 +102,18 @@ class AppTheme {
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: secondaryColor.withValues(alpha: 0.12),
         selectedColor: seedColor,
-        labelStyle: const TextStyle(color: Color(0xFF1F2937), fontWeight: FontWeight.w500),
+        labelStyle: const TextStyle(
+          color: Color(0xFF1F2937),
+          fontWeight: FontWeight.w500,
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
@@ -68,7 +124,11 @@ class AppTheme {
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
-        titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
     );
   }();

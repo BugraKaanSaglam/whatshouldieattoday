@@ -7,7 +7,6 @@ import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
 import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
 import 'package:yemek_tarifi_app/core/utils/form_decorations.dart';
-import 'package:yemek_tarifi_app/core/utils/ui_helpers.dart';
 import 'package:yemek_tarifi_app/global/app_globals.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -36,13 +35,11 @@ class _KitchenScreenState extends State<KitchenScreen> {
         children: [
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
               physics: const BouncingScrollPhysics(),
               children: [
-                //* Informational card
-                customCard('initialIngredientsText1'.tr()),
-                const SizedBox(height: 12),
-                //* Ingredient search field
+                _buildHeroCard(context),
+                const SizedBox(height: 16),
                 IngredientSearchDropdown(
                   key: _dropdownKey,
                   dropdownSelectedItems: _selectedIngredients,
@@ -54,14 +51,91 @@ class _KitchenScreenState extends State<KitchenScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              alignment: WrapAlignment.center,
               children: [
-                saveButton(),
-                deleteAllSavedIngredients(),
+                SizedBox(width: 190, child: saveButton()),
+                SizedBox(width: 190, child: deleteAllSavedIngredients()),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F766E).withValues(alpha: 0.18),
+            blurRadius: 20,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.kitchen_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'initialIngredientsSelectorScreenTitle'.tr(),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'initialIngredientsText1'.tr(),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.white.withValues(alpha: 0.86),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _KitchenStatChip(
+                icon: Icons.bookmark_added_rounded,
+                label: 'storedIngredientsCount'.tr(
+                  args: [_selectedIngredients.length.toString()],
+                ),
+              ),
+              _KitchenStatChip(
+                icon: Icons.cloud_done_rounded,
+                label: 'favoritesOfflineHintTitle'.tr(),
+              ),
+            ],
           ),
         ],
       ),
@@ -73,7 +147,20 @@ class _KitchenScreenState extends State<KitchenScreen> {
       onPressed: () {
         globalDataBase!.initialIngredients = _selectedIngredients;
         DBHelper().update(globalDataBase!);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Row(children: [const Icon(Icons.check_circle, color: Colors.green), const SizedBox(width: 10), Text('success'.tr())]), backgroundColor: Colors.green.withValues(alpha: 0.9), elevation: 10, duration: const Duration(seconds: 2)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green),
+                const SizedBox(width: 10),
+                Text('success'.tr()),
+              ],
+            ),
+            backgroundColor: Colors.green.withValues(alpha: 0.9),
+            elevation: 10,
+            duration: const Duration(seconds: 2),
+          ),
+        );
       },
       icon: const Icon(Icons.save, color: Colors.white),
       label: Text("save".tr(), style: buttonTextStyle()),
@@ -83,7 +170,8 @@ class _KitchenScreenState extends State<KitchenScreen> {
 
   ElevatedButton deleteAllSavedIngredients() {
     return ElevatedButton.icon(
-      onPressed: () => showDialog(context: context, builder: (context) => warningDialog()),
+      onPressed: () =>
+          showDialog(context: context, builder: (context) => warningDialog()),
       icon: const Icon(Icons.delete_forever, color: Colors.white),
       label: Text("deleteAllSavedIngredients".tr(), style: buttonTextStyle()),
       style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -93,7 +181,16 @@ class _KitchenScreenState extends State<KitchenScreen> {
   AlertDialog warningDialog() {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      title: Row(children: [const Icon(Icons.warning, color: Colors.orange, size: 28), const SizedBox(width: 10), Text('warning'.tr(), style: const TextStyle(fontWeight: FontWeight.bold))]),
+      title: Row(
+        children: [
+          const Icon(Icons.warning, color: Colors.orange, size: 28),
+          const SizedBox(width: 10),
+          Text(
+            'warning'.tr(),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
       content: Text('areYouSureYouWanttoDeleteAllSavedIngredients'.tr()),
       actions: [
         //* Yes Button
@@ -106,14 +203,63 @@ class _KitchenScreenState extends State<KitchenScreen> {
               _dropdownKey = UniqueKey(); // Dropdown'u yeniden oluştur
             });
             Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Row(children: [const Icon(Icons.check, color: Colors.green), const SizedBox(width: 10), Text('success'.tr())]), backgroundColor: Colors.redAccent.withValues(alpha: 0.9), elevation: 10, duration: const Duration(seconds: 2)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check, color: Colors.green),
+                    const SizedBox(width: 10),
+                    Text('success'.tr()),
+                  ],
+                ),
+                backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
+                elevation: 10,
+                duration: const Duration(seconds: 2),
+              ),
+            );
           },
           icon: const Icon(Icons.check_circle, color: Colors.green),
           label: Text('yes'.tr()),
         ),
         //* No
-        TextButton.icon(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.cancel, color: Colors.grey), label: Text('no'.tr())),
+        TextButton.icon(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.cancel, color: Colors.grey),
+          label: Text('no'.tr()),
+        ),
       ],
+    );
+  }
+}
+
+class _KitchenStatChip extends StatelessWidget {
+  const _KitchenStatChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: Colors.white),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(color: Colors.white),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -86,6 +86,7 @@ class _MainScreenState extends State<MainScreen> {
     MainViewModel viewModel,
   ) {
     final int ingredientsCount = globalDataBase?.initialIngredients.length ?? 0;
+    final int favoritesCount = globalDataBase?.favorites.length ?? 0;
     final int? totalCount = viewModel.totalRecipeCount;
     final String totalRecipesLabel = totalCount == null
         ? 'loading'.tr()
@@ -141,7 +142,89 @@ class _MainScreenState extends State<MainScreen> {
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 120),
-      child: _buildMenuGrid(menuItems, viewModel.isBlinking),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHomeHero(
+            context,
+            totalRecipesLabel: totalRecipesLabel,
+            ingredientsCount: ingredientsCount,
+            favoritesCount: favoritesCount,
+          ),
+          const SizedBox(height: 20),
+          _buildMenuGrid(menuItems, viewModel.isBlinking),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHomeHero(
+    BuildContext context, {
+    required String totalRecipesLabel,
+    required int ingredientsCount,
+    required int favoritesCount,
+  }) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF111827), Color(0xFF7C3AED)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF7C3AED).withValues(alpha: 0.18),
+            blurRadius: 22,
+            offset: const Offset(0, 16),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'homeHeroTitle'.tr(),
+            style: theme.textTheme.headlineMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'homeHeroBody'.tr(),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: Colors.white.withValues(alpha: 0.84),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _HeroInfoChip(
+                icon: Icons.menu_book_rounded,
+                label: totalRecipesLabel,
+              ),
+              _HeroInfoChip(
+                icon: Icons.kitchen_rounded,
+                label: 'storedIngredientsCount'.tr(
+                  args: [ingredientsCount.toString()],
+                ),
+              ),
+              _HeroInfoChip(
+                icon: Icons.favorite_rounded,
+                label: 'settingsFavoritesStat'.tr(
+                  args: [favoritesCount.toString()],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -487,6 +570,38 @@ class _PulsingBadge extends StatefulWidget {
 
   @override
   State<_PulsingBadge> createState() => _PulsingBadgeState();
+}
+
+class _HeroInfoChip extends StatelessWidget {
+  const _HeroInfoChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: Colors.white),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _PulsingBadgeState extends State<_PulsingBadge>
