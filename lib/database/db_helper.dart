@@ -1,4 +1,3 @@
-// ignore_for_file: await_only_futures
 import 'dart:io' as io;
 
 import 'package:path/path.dart' show join;
@@ -21,7 +20,7 @@ class DBHelper {
     return globalDataBase;
   }
 
-  Future<Database?>? initDatabase() async {
+  Future<Database?> initDatabase() async {
     try {
       const String fileName = 'foodappdatabase23.db';
       final io.Directory documentDirectory =
@@ -56,7 +55,8 @@ class DBHelper {
   Future<void> add(FoodApplicationDatabase column) async {
     try {
       final Database? dbClient = await db;
-      await dbClient!.insert(
+      if (dbClient == null) return;
+      await dbClient.insert(
         'foodAppTable',
         column.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
@@ -68,8 +68,9 @@ class DBHelper {
 
   /// Retrieves a `FoodApplicationDatabase` entry by version number
   Future<FoodApplicationDatabase?> getList(int ver) async {
-    var dbClient = await db;
-    List<Map<String, dynamic>> maps = await dbClient!.query(
+    final Database? dbClient = await db;
+    if (dbClient == null) return null;
+    final List<Map<String, dynamic>> maps = await dbClient.query(
       'foodAppTable',
       columns: ['Ver', 'LanguageCode', 'InitialIngredients', 'Favorites'],
       where: 'Ver = ?',
@@ -77,15 +78,24 @@ class DBHelper {
     );
 
     if (maps.isNotEmpty) {
-      return FoodApplicationDatabase.fromMap(maps.first);
+      try {
+        return FoodApplicationDatabase.fromMap(maps.first);
+      } catch (error, stackTrace) {
+        AppLogger.e(
+          'Local database row could not be parsed',
+          error,
+          stackTrace,
+        );
+      }
     }
     return null;
   }
 
   /// Updates an existing `FoodApplicationDatabase` entry
   Future<int> update(FoodApplicationDatabase column) async {
-    var dbClient = await db;
-    return await dbClient!.update(
+    final Database? dbClient = await db;
+    if (dbClient == null) return 0;
+    return dbClient.update(
       'foodAppTable',
       column.toMap(),
       where: 'Ver = ?',
@@ -95,8 +105,9 @@ class DBHelper {
 
   /// Deletes an entry from the database
   Future<int> delete(FoodApplicationDatabase column) async {
-    var dbClient = await db;
-    return await dbClient!.delete(
+    final Database? dbClient = await db;
+    if (dbClient == null) return 0;
+    return dbClient.delete(
       'foodAppTable',
       where: 'Ver = ?',
       whereArgs: [column.ver],
@@ -104,8 +115,9 @@ class DBHelper {
   }
 
   /// Closes the database connection
-  Future close() async {
-    var dbClient = await db;
-    dbClient!.close();
+  Future<void> close() async {
+    final Database? dbClient = await db;
+    await dbClient?.close();
+    globalDataBase = null;
   }
 }

@@ -1,7 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:yemek_tarifi_app/models/favorites/favorite.dart';
 import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
-import 'dart:convert';
 
 class FoodApplicationDatabase extends ChangeNotifier {
   FoodApplicationDatabase({
@@ -17,7 +18,13 @@ class FoodApplicationDatabase extends ChangeNotifier {
   List<Favorite> favorites; // List of favorite recipes
 
   /// Converts the list of ingredient values to a list of strings
-  List<String> convertIngredientValuesToStringList() => initialIngredients.map((ingredient) => ingredient.nameTr).toList();
+  List<String> convertIngredientValuesToStringList() => initialIngredients
+      .map(
+        (ingredient) => ingredient.nameTr.trim().isNotEmpty
+            ? ingredient.nameTr
+            : ingredient.name,
+      )
+      .toList(growable: false);
 
   /// Adds an ingredient and notifies listeners
   void addIngredient(Ingredient ingredient) {
@@ -36,21 +43,60 @@ class FoodApplicationDatabase extends ChangeNotifier {
     return {
       'Ver': ver,
       'LanguageCode': languageCode,
-      'InitialIngredients': jsonEncode(initialIngredients.map((e) => e.toMap()).toList()),
-      'Favorites': jsonEncode(favorites.map((e) => e.toMap()).toList()),
+      'InitialIngredients': jsonEncode(
+        initialIngredients.map((e) => e.toMap()).toList(growable: false),
+      ),
+      'Favorites': jsonEncode(
+        favorites.map((e) => e.toMap()).toList(growable: false),
+      ),
     };
   }
 
   /// Creates a `FoodApplicationDatabase` object from a Map
   factory FoodApplicationDatabase.fromMap(Map<dynamic, dynamic> map) {
+    List<dynamic> decodeList(Object? raw) {
+      if (raw is List) return raw;
+      if (raw is! String || raw.trim().isEmpty) return <dynamic>[];
+      try {
+        final dynamic decoded = jsonDecode(raw);
+        return decoded is List ? decoded : <dynamic>[];
+      } on FormatException {
+        return <dynamic>[];
+      }
+    }
+
+    final List<Ingredient> ingredients = <Ingredient>[];
+    for (final item in decodeList(map['InitialIngredients'])) {
+      if (item is! Map) continue;
+      try {
+        ingredients.add(Ingredient.fromMap(Map<String, dynamic>.from(item)));
+      } catch (_) {
+        // Ignore one malformed legacy ingredient without losing the database.
+      }
+    }
+
+    final List<Favorite> decodedFavorites = <Favorite>[];
+    for (final item in decodeList(map['Favorites'])) {
+      if (item is! Map) continue;
+      try {
+        decodedFavorites.add(Favorite.fromMap(Map<String, dynamic>.from(item)));
+      } catch (_) {
+        // Ignore one malformed legacy favorite without losing other favorites.
+      }
+    }
+
     return FoodApplicationDatabase(
-      ver: map['Ver'] ?? 0,
-      languageCode: map['LanguageCode'] ?? map['languageCode'] ?? 0,
-      initialIngredients: (jsonDecode(map['InitialIngredients']) as List<dynamic>).map((e) => Ingredient.fromMap(e)).toList(),
-      favorites: (map.containsKey('Favorites') && map['Favorites'] != null) ? (jsonDecode(map['Favorites']) as List<dynamic>).map((e) => Favorite.fromMap(e)).toList() : [],
+      ver: int.tryParse('${map['Ver'] ?? 0}') ?? 0,
+      languageCode:
+          int.tryParse('${map['LanguageCode'] ?? map['languageCode'] ?? 0}') ??
+          0,
+      initialIngredients: ingredients,
+      favorites: decodedFavorites,
     );
   }
 
   @override
-  String toString() => 'FoodApplicationDatabase(Ver: $ver, languageCode: $languageCode, InitialIngredients: $initialIngredients, Favorites: $favorites)';
+  String toString() =>
+      'FoodApplicationDatabase(Ver: $ver, languageCode: $languageCode, '
+      'InitialIngredients: $initialIngredients, Favorites: $favorites)';
 }

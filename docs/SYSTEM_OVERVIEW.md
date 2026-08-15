@@ -90,7 +90,7 @@ Configured in `lib/core/configs/supabase_config.dart`.
 Tables and RPCs used:
 
 - `Recipes` table
-  - Fetch by `RecipeId` or `Id`.
+  - Fetch by the authoritative quoted `Id` primary key.
   - Fallback search when RPC fails.
 - `Ingredients` table
   - Search by `Ingredients` / `Ingredients_tr` columns.

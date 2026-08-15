@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yemek_tarifi_app/core/configs/router/app_routes.dart';
 import 'package:yemek_tarifi_app/core/favorites/favorites_store.dart';
@@ -16,7 +15,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:yemek_tarifi_app/widgets/recipes/food_image.dart';
 import 'package:yemek_tarifi_app/core/utils/checkstring.dart';
 import 'package:yemek_tarifi_app/core/utils/form_decorations.dart';
-import 'package:yemek_tarifi_app/global/app_globals.dart';
 import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/core/network/backend_service.dart';
 import 'package:flutter/services.dart';
@@ -154,28 +152,11 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
     if (widget.foodLoader != null) {
       return widget.foodLoader!(recipeId);
     }
-    final SupabaseClient supabase = Supabase.instance.client;
     try {
-      final List<Map<String, dynamic>> data = await supabase
-          .from(recipesTableName)
-          .select()
-          .eq('RecipeId', recipeId)
-          .limit(1);
-      if (data.isEmpty) return null;
-      return Food.fromMap(data.first);
-    } catch (_) {
-      try {
-        final List<Map<String, dynamic>> data = await supabase
-            .from(recipesTableName)
-            .select()
-            .eq('Id', recipeId)
-            .limit(1);
-        if (data.isEmpty) return null;
-        return Food.fromMap(data.first);
-      } catch (e) {
-        AppLogger.w('Error processing food document', e);
-        throw Exception('Error parsing food data: $e');
-      }
+      return await BackendService.fetchRecipeById(recipeId);
+    } catch (error) {
+      AppLogger.w('Error processing food document', error);
+      return null;
     }
   }
 
@@ -309,6 +290,8 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
           child: FoodImage(
             imageUrls: [coverUrl],
             cacheKey: 'recipe-${food.recipeId}',
+            cacheWidth: 900,
+            cacheHeight: 700,
           ),
         ),
       ),

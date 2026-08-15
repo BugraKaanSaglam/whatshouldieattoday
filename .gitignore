@@ -57,3 +57,4 @@ key.properties
 google-services.json
 GoogleService-Info.plist
 supabase.env
+tool/config/supabase.local.json

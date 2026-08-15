@@ -12,6 +12,11 @@ class BackendService {
   static final SupabaseClient _client = Supabase.instance.client;
   static bool debugEnabled = false;
 
+  /// The production schema uses the quoted `Id` column on `Recipes`.
+  /// Keeping recipe access here prevents screens and local stores from
+  /// reintroducing legacy `RecipeId` fallbacks.
+  static const String recipeIdColumn = 'Id';
+
   static void _log(String message, {Object? data}) {
     if (!debugEnabled) return;
     AppLogger.d('[Backend] $message${data != null ? ' | $data' : ''}');
@@ -30,7 +35,7 @@ class BackendService {
 
     final List<Map<String, dynamic>> response = await _client
         .from(tableName)
-        .select()
+        .select('Id, Ingredients, Ingredients_tr')
         .ilike(searchName, '%$query%')
         .limit(50);
 
@@ -50,6 +55,44 @@ class BackendService {
         })
         .where((ing) => ing.name.isNotEmpty || ing.nameTr.isNotEmpty)
         .toList();
+  }
+
+  /// Loads one recipe using the authoritative production primary key.
+  static Future<Food?> fetchRecipeById(int recipeId) async {
+    if (recipeId <= 0) return null;
+
+    final Map<String, dynamic>? row = await _client
+        .from(recipesTableName)
+        .select()
+        .eq(recipeIdColumn, recipeId)
+        .maybeSingle();
+    if (row == null) return null;
+    return Food.fromMap(row);
+  }
+
+  /// Loads a set of recipes in one request and returns them keyed by ID.
+  static Future<Map<int, Food>> fetchRecipesByIds(
+    Iterable<int> recipeIds,
+  ) async {
+    final List<int> ids = recipeIds.where((id) => id > 0).toSet().toList();
+    if (ids.isEmpty) return <int, Food>{};
+
+    final List<Map<String, dynamic>> rows = await _client
+        .from(recipesTableName)
+        .select()
+        .inFilter(recipeIdColumn, ids);
+
+    final Map<int, Food> foods = <int, Food>{};
+    for (final row in rows) {
+      try {
+        final Food food = Food.fromMap(row);
+        if (food.recipeId > 0) foods[food.recipeId] = food;
+      } catch (error, stackTrace) {
+        AppLogger.w('Skipping malformed recipe row', error);
+        AppLogger.d(stackTrace.toString());
+      }
+    }
+    return foods;
   }
 
   /// Fetch recipes via RPC; falls back to table query if RPC unavailable.
@@ -103,9 +146,13 @@ class BackendService {
     for (final item in rawResults) {
       if (item is! Map<String, dynamic>) continue;
       try {
-        validRecipes.add(Food.fromMap(item));
-      } catch (_) {
-        // Skip invalid rows silently.
+        final Food food = Food.fromMap(item);
+        if (food.recipeId > 0 &&
+            (food.name.isNotEmpty || food.nameTr.isNotEmpty)) {
+          validRecipes.add(food);
+        }
+      } catch (error) {
+        _log('Skipping malformed recipe row', data: error.toString());
       }
     }
     return validRecipes;
@@ -119,8 +166,8 @@ class BackendService {
     final int rangeEnd = offset + limit - 1;
     const List<String> fallbackColumns = [
       'ingredients_tokens',
-      'ingredients',
-      'ingredients_raw',
+      'Ingredients',
+      'Ingredients_Raw',
     ];
 
     for (final column in fallbackColumns) {
@@ -209,12 +256,26 @@ class BackendService {
     required String? email,
     required String message,
   }) async {
+    final String cleanMessage = message.trim();
+    final String? cleanEmail = email?.trim();
+    if (cleanMessage.isEmpty || cleanMessage.length > 5000) {
+      throw ArgumentError(
+        'Feedback message must be between 1 and 5000 characters.',
+      );
+    }
+    if (cleanEmail != null &&
+        cleanEmail.isNotEmpty &&
+        (cleanEmail.length < 3 || cleanEmail.length > 254)) {
+      throw ArgumentError('Feedback email length is invalid.');
+    }
     _log('submitFeedback', data: {'recipeId': recipeId});
     await _client.from('Feedback').insert({
       'RecipeId': recipeId,
-      'Email': (email != null && email.isNotEmpty) ? email : null,
-      'Message': message,
-      'Created_at': DateTime.now().toIso8601String(),
+      'Email': (cleanEmail != null && cleanEmail.isNotEmpty)
+          ? cleanEmail
+          : null,
+      'Message': cleanMessage,
+      'Created_at': DateTime.now().toUtc().toIso8601String(),
     });
   }
 

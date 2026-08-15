@@ -1,7 +1,6 @@
 import 'package:yemek_tarifi_app/database/db_helper.dart';
 import 'package:yemek_tarifi_app/global/app_globals.dart';
-import 'package:yemek_tarifi_app/core/logging/app_logger.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:yemek_tarifi_app/core/network/backend_service.dart';
 import 'package:yemek_tarifi_app/models/favorites/favorite.dart';
 import 'package:yemek_tarifi_app/models/recipe/food.dart';
 
@@ -142,28 +141,10 @@ class FavoritesStore {
   }
 
   static Future<Food?> _fetchSingleFood(int recipeId) async {
-    final SupabaseClient supabase = Supabase.instance.client;
     try {
-      final List<Map<String, dynamic>> data = await supabase
-          .from(recipesTableName)
-          .select()
-          .eq('RecipeId', recipeId)
-          .limit(1);
-      if (data.isEmpty) return null;
-      return Food.fromMap(data.first);
-    } catch (_) {
-      try {
-        final List<Map<String, dynamic>> data = await supabase
-            .from(recipesTableName)
-            .select()
-            .eq('Id', recipeId)
-            .limit(1);
-        if (data.isEmpty) return null;
-        return Food.fromMap(data.first);
-      } catch (error) {
-        AppLogger.w('Favorite cache backfill failed', error);
-        return null;
-      }
+      return await BackendService.fetchRecipeById(recipeId);
+    } catch (error) {
+      return null;
     }
   }
 }

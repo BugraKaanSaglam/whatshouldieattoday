@@ -1,11 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:yemek_tarifi_app/core/favorites/favorites_store.dart';
 import 'package:yemek_tarifi_app/core/network/connection_monitor.dart';
+import 'package:yemek_tarifi_app/core/network/backend_service.dart';
 import 'package:yemek_tarifi_app/models/favorites/favorite.dart';
 import 'package:yemek_tarifi_app/models/recipe/food.dart';
-import 'package:yemek_tarifi_app/global/app_globals.dart';
 
 typedef FavoriteReconcileCallback =
     Future<void> Function({required bool backfillMissingCache});
@@ -68,21 +67,28 @@ class FavoritesViewModel extends ChangeNotifier {
       return;
     }
 
-    final futures = _favorites
-        .map(
-          (favorite) =>
-              _fetchSingleFood(favorite.recipeId).catchError((_) => null),
-        )
-        .toList();
-    final List<Food?> remoteFoods = await Future.wait(futures);
+    final Map<int, Food> remoteById;
+    if (_foodLoader != null) {
+      final List<Food?> loaded = await Future.wait(
+        _favorites.map((favorite) => _fetchSingleFood(favorite.recipeId)),
+      );
+      remoteById = <int, Food>{
+        for (int i = 0; i < loaded.length; i++)
+          if (loaded[i] != null) _favorites[i].recipeId: loaded[i]!,
+      };
+    } else {
+      remoteById = await BackendService.fetchRecipesByIds(
+        _favorites.map((favorite) => favorite.recipeId),
+      );
+    }
     _loadedFoods = List<Food?>.generate(_favorites.length, (index) {
-      final Food? remote = remoteFoods[index];
+      final Food? remote = remoteById[_favorites[index].recipeId];
       final Food? cached = _favorites[index].cachedFood;
       return remote ?? cached;
     });
 
     for (int i = 0; i < _favorites.length; i++) {
-      final Food? remote = remoteFoods[i];
+      final Food? remote = remoteById[_favorites[i].recipeId];
       if (remote != null) {
         await _cacheWriter(remote, category: _favorites[i].category);
       }
@@ -96,27 +102,6 @@ class FavoritesViewModel extends ChangeNotifier {
     if (_foodLoader != null) {
       return _foodLoader(recipeId);
     }
-    final supabase = Supabase.instance.client;
-    try {
-      final List<Map<String, dynamic>> data = await supabase
-          .from(recipesTableName)
-          .select()
-          .eq('RecipeId', recipeId)
-          .limit(1);
-      if (data.isEmpty) return null;
-      return Food.fromMap(data.first);
-    } catch (_) {
-      try {
-        final List<Map<String, dynamic>> data = await supabase
-            .from(recipesTableName)
-            .select()
-            .eq('Id', recipeId)
-            .limit(1);
-        if (data.isEmpty) return null;
-        return Food.fromMap(data.first);
-      } catch (e) {
-        throw Exception('Error parsing food data: $e');
-      }
-    }
+    return BackendService.fetchRecipeById(recipeId);
   }
 }

@@ -68,6 +68,8 @@ class FavoriteFoodListItem extends StatelessWidget {
                     child: FoodImage(
                       imageUrls: [coverUrl],
                       cacheKey: 'recipe-${food.recipeId}',
+                      cacheWidth: 360,
+                      cacheHeight: 420,
                     ),
                   ),
                 ),

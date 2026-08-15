@@ -62,5 +62,53 @@ void main() {
     expect(food.categories, ['Dinner']);
     expect(food.cuisines, ['Italian']);
     expect(food.ingredients.first.name, 'chopped tomato');
+    expect(food.ingredientsTr.first.nameTr, 'dogranmis domates');
+  });
+
+  test(
+    'Food.fromMap does not translate legacy RecipeId into the primary key',
+    () {
+      final food = Food.fromMap({'RecipeId': 42, 'Name': 'Legacy row'});
+
+      expect(food.recipeId, 0);
+    },
+  );
+
+  test(
+    'FoodApplicationDatabase keeps valid local rows around malformed rows',
+    () {
+      final restored = FoodApplicationDatabase.fromMap({
+        'Ver': '2',
+        'LanguageCode': '0',
+        'InitialIngredients': jsonEncode([
+          {'Ingredient': 'salt', 'Ingredient_tr': 'tuz'},
+          {'Ingredient': 123},
+          'not-a-map',
+        ]),
+        'Favorites': jsonEncode([
+          {
+            'recipeId': 7,
+            'category': 'Dinner',
+            'cachedFood': {'id': 7, 'name': 'Soup', 'name_tr': 'Çorba'},
+          },
+          {'recipeId': 'bad'},
+        ]),
+      });
+
+      expect(restored.initialIngredients.length, 1);
+      expect(restored.favorites.length, 1);
+      expect(restored.favorites.single.recipeId, 7);
+    },
+  );
+
+  test('FoodApplicationDatabase ignores invalid JSON columns', () {
+    final restored = FoodApplicationDatabase.fromMap({
+      'Ver': 1,
+      'InitialIngredients': '{not-json',
+      'Favorites': 'also-not-json',
+    });
+
+    expect(restored.initialIngredients, isEmpty);
+    expect(restored.favorites, isEmpty);
   });
 }

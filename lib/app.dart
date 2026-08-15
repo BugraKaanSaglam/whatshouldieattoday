@@ -27,6 +27,7 @@ class _FoodAppState extends State<FoodApp> with WidgetsBindingObserver {
   late final AppRouter _appRouter;
   late final ConnectionMonitor _connectionMonitor;
   StreamSubscription<Uri?>? _linkSubscription;
+  Timer? _deepLinkTimer;
   late final AppLinks _appLinks;
   bool _lastKnownOnline = true;
 
@@ -44,12 +45,13 @@ class _FoodAppState extends State<FoodApp> with WidgetsBindingObserver {
     _appRouter = AppRouter(_bootstrapController);
 
     WidgetsBinding.instance.addObserver(this);
-    _initDeepLinkListener();
+    unawaited(_initDeepLinkListener());
   }
 
   @override
   void dispose() {
     _linkSubscription?.cancel();
+    _deepLinkTimer?.cancel();
     _connectionMonitor
       ..removeListener(_handleConnectionStatusChanged)
       ..dispose();
@@ -66,20 +68,19 @@ class _FoodAppState extends State<FoodApp> with WidgetsBindingObserver {
     }
   }
 
-  void _initDeepLinkListener() async {
+  Future<void> _initDeepLinkListener() async {
     _appLinks = AppLinks();
     _linkSubscription = _appLinks.uriLinkStream.listen((Uri? uri) {
-      if (uri != null) _handleDeepLink(uri);
+      if (mounted && uri != null) _handleDeepLink(uri);
     }, onError: (err) => AppLogger.w('Deep link stream error', err));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final Uri? initialUri = await _appLinks.getInitialLink();
-      if (initialUri != null) {
-        Future.delayed(
-          const Duration(milliseconds: 500),
-          () => _handleDeepLink(initialUri),
-        );
-      }
+      if (!mounted || initialUri == null) return;
+      _deepLinkTimer?.cancel();
+      _deepLinkTimer = Timer(const Duration(milliseconds: 500), () {
+        if (mounted) _handleDeepLink(initialUri);
+      });
     });
   }
 

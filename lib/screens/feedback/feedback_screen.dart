@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -210,6 +208,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           TextField(
             controller: _messageController,
             maxLines: 6,
+            maxLength: 5000,
+            textInputAction: TextInputAction.newline,
             decoration: formDecoration().copyWith(
               labelText: 'yourFeedback'.tr(),
               alignLabelWithHint: true,

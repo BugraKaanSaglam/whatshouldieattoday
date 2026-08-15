@@ -89,12 +89,24 @@ The project includes:
 flutter pub get
 ```
 
-3. Configure Supabase using `supabase.env` and `lib/core/configs/supabase_config.dart`.
+3. Create a local Supabase configuration from
+   [`tool/config/supabase.example.json`](tool/config/supabase.example.json):
+
+```bash
+cp tool/config/supabase.example.json tool/config/supabase.local.json
+```
+
+   Fill in the public project URL and publishable key, then pass it to Flutter
+   with `--dart-define-from-file`. Never put a `service_role` key in this file.
 4. Run the app:
 
 ```bash
-flutter run
+flutter run --dart-define-from-file=tool/config/supabase.local.json
 ```
+
+For the Supabase client contract and the production-backend boundary, see
+[Supabase Backend](docs/SUPABASE_BACKEND.md). This modernization does not
+change the remote schema or migration history.
 
 ## Localization
 

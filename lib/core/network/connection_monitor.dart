@@ -13,15 +13,23 @@ class ConnectionMonitor extends ChangeNotifier {
 
   final Connectivity _connectivity;
   StreamSubscription<dynamic>? _subscription;
+  bool _initialized = false;
 
   bool _isOnline = true;
 
   bool get isOnline => _isOnline;
 
   Future<void> initialize() async {
-    final dynamic initialResult = await _connectivity.checkConnectivity();
-    _updateStatus(initialResult, reason: 'initial');
+    if (_initialized) return;
+    _initialized = true;
+    try {
+      final dynamic initialResult = await _connectivity.checkConnectivity();
+      _updateStatus(initialResult, reason: 'initial');
+    } catch (error) {
+      AppLogger.w('Initial connectivity check failed', error);
+    }
 
+    await _subscription?.cancel();
     _subscription = _connectivity.onConnectivityChanged.listen((
       dynamic result,
     ) {

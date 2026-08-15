@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -328,7 +326,7 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
       builder: (BuildContext context) => const _FilteringSpinnerDialog(),
     );
     final String? error = await viewModel.startFiltering();
-    if (!mounted) return;
+    if (!context.mounted) return;
     Navigator.of(context).pop();
     if (error == null) {
       return;
@@ -463,6 +461,8 @@ class FoodListItem extends StatelessWidget {
                       child: FoodImage(
                         imageUrls: [coverUrl],
                         cacheKey: 'recipe-${food.recipeId}',
+                        cacheWidth: 360,
+                        cacheHeight: 520,
                       ),
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,11 +15,19 @@ import 'package:yemek_tarifi_app/enums/language_enum.dart';
 import 'package:yemek_tarifi_app/core/utils/locale_utils.dart';
 import 'package:yemek_tarifi_app/models/favorites/favorite.dart';
 import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
+import 'package:yemek_tarifi_app/core/logging/app_logger.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
-  await MobileAds.instance.initialize();
+  unawaited(
+    MobileAds.instance.initialize().then<void>(
+      (_) {},
+      onError: (Object error, StackTrace stackTrace) {
+        AppLogger.w('Mobile Ads initialization failed', error);
+      },
+    ),
+  );
 
   final Language deviceLanguage = detectDeviceLanguage();
 
@@ -43,7 +52,7 @@ Future<void> main() async {
   SupabaseConfig.ensureSet();
   await Supabase.initialize(
     url: SupabaseConfig.url,
-    anonKey: SupabaseConfig.anonKey,
+    publishableKey: SupabaseConfig.publishableKey,
   );
   await FavoritesStore.reconcileLocalState(backfillMissingCache: true);
 

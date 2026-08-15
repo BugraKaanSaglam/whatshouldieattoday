@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -289,6 +287,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (globalDataBase != null) {
       await DBHelper().update(globalDataBase!);
     }
+    if (!mounted) return;
     await context.setLocale(
       languageToLocale(Language.getLanguageFromValue(_selectedLanguage)),
     );

@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
-
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +19,7 @@ class IngredientSearchDropdown extends StatefulWidget {
   final ValueChanged<List<Ingredient>> onItemsChanged;
 
   @override
-  _IngredientSearchDropdownState createState() =>
+  State<IngredientSearchDropdown> createState() =>
       _IngredientSearchDropdownState();
 }
 
@@ -129,7 +127,7 @@ class _IngredientSearchDropdownState extends State<IngredientSearchDropdown> {
                   tableName: widget.tableName,
                   context: context,
                 ),
-                popupProps: PopupPropsMultiSelection.modalBottomSheet(
+                popupProps: MultiSelectionPopupProps.modalBottomSheet(
                   showSelectedItems: false,
                   showSearchBox: true,
                   modalBottomSheetProps: const ModalBottomSheetProps(
@@ -251,7 +249,7 @@ class _IngredientSearchDropdownState extends State<IngredientSearchDropdown> {
                 compareFn: (item, selectedItem) =>
                     item.name == selectedItem.name &&
                     item.nameTr == selectedItem.nameTr,
-                onChanged: _updateSelection,
+                onSelected: _updateSelection,
                 selectedItems: selectedItems,
                 itemAsString: (Ingredient ingredient) =>
                     isTurkish ? ingredient.nameTr : ingredient.name,
@@ -449,7 +447,7 @@ Future<List<Ingredient>> fetchFilteredData({
   if (query.isEmpty) return <Ingredient>[];
   try {
     final bool isTurkish = Localizations.localeOf(context).languageCode == 'tr';
-    return BackendService.searchIngredients(
+    return await BackendService.searchIngredients(
       query: query,
       tableName: tableName,
       isTurkish: isTurkish,

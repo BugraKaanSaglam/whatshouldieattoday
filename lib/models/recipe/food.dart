@@ -69,8 +69,10 @@ abstract class Food with _$Food {
   factory Food.fromJson(Map<String, dynamic> json) => _$FoodFromJson(json);
 
   factory Food.fromMap(Map<String, dynamic> map) {
-    // ID (CSV: "Id", eski dataset: "RecipeId", Supabase: "id")
-    final dynamic idRaw = map['id'] ?? map['Id'] ?? map['RecipeId'];
+    // The live Supabase schema uses the quoted `Recipes.Id` column. The
+    // generated JSON form uses `id`; neither the UI nor repository layer
+    // should silently translate an unrelated legacy `RecipeId` field.
+    final dynamic idRaw = map['Id'] ?? map['id'];
     final int recipeId = _parseInt(idRaw) ?? 0;
 
     final String name = (map['name'] ?? map['Name'] ?? '').toString().trim();
@@ -108,8 +110,7 @@ abstract class Food with _$Food {
       map['ingredients_tr'] ?? map['Ingredients_tr'],
     );
 
-    final List<Ingredient> ingredientsTr = _buildIngredientList(
-      map['ingredients_tr'] ?? map['Ingredients_tr'],
+    final List<Ingredient> ingredientsTr = _buildTurkishIngredientList(
       map['ingredients_tr'] ?? map['Ingredients_tr'],
     );
 
@@ -432,6 +433,30 @@ List<Ingredient> _buildIngredientList(dynamic enValue, dynamic trValue) {
     result.add(Ingredient(name: enName, nameTr: trName));
   }
 
+  return result;
+}
+
+/// Parses the Turkish-only structured column for callers that need a
+/// language-specific ingredient list. The main English list above remains
+/// positional so that both translations can be paired when available.
+List<Ingredient> _buildTurkishIngredientList(dynamic value) {
+  final result = <Ingredient>[];
+  for (final item in _parseMapList(value)) {
+    final name = _combineIngredientName(
+      (item['ingredient_tr'] ??
+              item['Ingredient_tr'] ??
+              item['ingredient'] ??
+              item['Ingredient'] ??
+              item['value'] ??
+              '')
+          .toString()
+          .trim(),
+      (item['misc_tr'] ?? item['misc'] ?? '').toString().trim(),
+    );
+    if (name.isNotEmpty) {
+      result.add(Ingredient(name: name, nameTr: name));
+    }
+  }
   return result;
 }
 

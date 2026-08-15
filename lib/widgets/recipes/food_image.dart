@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,12 +9,16 @@ class FoodImage extends StatefulWidget {
   final List<String>? imageUrls;
   final bool isSingleImage;
   final String? cacheKey;
+  final int cacheWidth;
+  final int cacheHeight;
 
   const FoodImage({
     super.key,
     required this.imageUrls,
     this.isSingleImage = true,
     this.cacheKey,
+    this.cacheWidth = 640,
+    this.cacheHeight = 640,
   });
 
   @override
@@ -53,11 +58,27 @@ class FoodImageState extends State<FoodImage> {
   }
 
   void _processImages() {
+    validImages = <String>[];
     if (widget.imageUrls != null && widget.imageUrls!.isNotEmpty) {
       validImages = widget.imageUrls!.where((url) => _isValidUrl(url)).toList();
     }
     if (validImages.isEmpty) {
       validImages.add(AppImages.defaultFood);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant FoodImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!listEquals(oldWidget.imageUrls, widget.imageUrls) ||
+        oldWidget.cacheKey != widget.cacheKey ||
+        oldWidget.isSingleImage != widget.isSingleImage ||
+        oldWidget.cacheWidth != widget.cacheWidth ||
+        oldWidget.cacheHeight != widget.cacheHeight) {
+      _currentIndex = 0;
+      if (_pageController.hasClients) _pageController.jumpToPage(0);
+      _processImages();
+      _precacheImages();
     }
   }
 
@@ -70,7 +91,8 @@ class FoodImageState extends State<FoodImage> {
   Future<void> _precacheImages() async {
     if (!mounted) return;
     final futures = <Future<void>>[];
-    for (int i = 0; i < validImages.length; i++) {
+    final int precacheCount = validImages.length > 4 ? 4 : validImages.length;
+    for (int i = 0; i < precacheCount; i++) {
       final url = validImages[i];
       try {
         if (url.startsWith("assets/")) {
@@ -96,40 +118,73 @@ class FoodImageState extends State<FoodImage> {
       return Image.asset(
         imageUrl,
         fit: BoxFit.cover,
-        errorBuilder: (_, _, _) =>
-            Image.asset(AppImages.defaultFood, fit: BoxFit.cover),
+        cacheWidth: widget.cacheWidth,
+        cacheHeight: widget.cacheHeight,
+        errorBuilder: (_, _, _) => Image.asset(
+          AppImages.defaultFood,
+          fit: BoxFit.cover,
+          cacheWidth: widget.cacheWidth,
+          cacheHeight: widget.cacheHeight,
+        ),
       );
     }
     final cacheKey = _cacheKeyFor(imageUrl, index: index);
     final ImageProvider? cachedProvider = _memoryImageCache[cacheKey];
     if (cachedProvider != null) {
-      return Image(image: cachedProvider, fit: BoxFit.cover);
+      return Image(
+        image: cachedProvider,
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.medium,
+      );
     }
     return CachedNetworkImage(
       imageUrl: imageUrl,
       cacheKey: cacheKey,
       cacheManager: _cacheManager,
+      memCacheWidth: widget.cacheWidth,
+      memCacheHeight: widget.cacheHeight,
+      maxWidthDiskCache: widget.cacheWidth,
+      maxHeightDiskCache: widget.cacheHeight,
       useOldImageOnUrlChange: true,
       fadeInDuration: Duration.zero,
       fadeOutDuration: Duration.zero,
       fit: BoxFit.cover,
       imageBuilder: (context, provider) {
         _storeInMemoryCache(cacheKey, provider);
-        return Image(image: provider, fit: BoxFit.cover);
+        return Image(
+          image: provider,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.medium,
+        );
       },
-      placeholder: (context, url) =>
-          const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      placeholder: (context, url) => const ColoredBox(
+        color: Color(0xFFF1F5F9),
+        child: Center(
+          child: Icon(
+            Icons.restaurant_rounded,
+            color: Color(0xFFCBD5E1),
+            size: 28,
+          ),
+        ),
+      ),
       errorWidget: (context, url, error) {
         if (index != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted && validImages[index] != AppImages.defaultFood) {
+            if (mounted &&
+                index < validImages.length &&
+                validImages[index] != AppImages.defaultFood) {
               setState(() {
                 validImages[index] = AppImages.defaultFood;
               });
             }
           });
         }
-        return Image.asset(AppImages.defaultFood, fit: BoxFit.cover);
+        return Image.asset(
+          AppImages.defaultFood,
+          fit: BoxFit.cover,
+          cacheWidth: widget.cacheWidth,
+          cacheHeight: widget.cacheHeight,
+        );
       },
     );
   }
@@ -139,13 +194,18 @@ class FoodImageState extends State<FoodImage> {
       url,
       cacheKey: _cacheKeyFor(url, index: index),
       cacheManager: _cacheManager,
+      maxWidth: widget.cacheWidth,
+      maxHeight: widget.cacheHeight,
     );
   }
 
   String _cacheKeyFor(String url, {int? index}) {
     final String base = widget.cacheKey ?? _stripQuery(url);
-    if (!widget.isSingleImage && index != null) return '$base-$index';
-    return base;
+    final String dimensions = '${widget.cacheWidth}x${widget.cacheHeight}';
+    final String indexedBase = !widget.isSingleImage && index != null
+        ? '$base-$index'
+        : base;
+    return '$indexedBase-$dimensions';
   }
 
   void _storeInMemoryCache(String key, ImageProvider provider) {
@@ -165,7 +225,12 @@ class FoodImageState extends State<FoodImage> {
   @override
   Widget build(BuildContext context) {
     if (validImages.isEmpty) {
-      return Image.asset(AppImages.defaultFood, fit: BoxFit.cover);
+      return Image.asset(
+        AppImages.defaultFood,
+        fit: BoxFit.cover,
+        cacheWidth: widget.cacheWidth,
+        cacheHeight: widget.cacheHeight,
+      );
     }
     if (widget.isSingleImage) {
       return _buildImageWidget(validImages.first);
