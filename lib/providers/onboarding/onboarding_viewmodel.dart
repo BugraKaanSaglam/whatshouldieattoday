@@ -7,28 +7,26 @@ import 'package:yemek_tarifi_app/core/network/onboarding_service.dart';
 
 class OnboardingViewModel extends ChangeNotifier {
   OnboardingViewModel(this._service)
-      : steps = List.unmodifiable(
-          [
-            OnboardingStep(
-              titleKey: 'onboardingTitle1',
-              descriptionKey: 'onboardingBody1',
-              icon: Icons.auto_awesome,
-              gradientColors: [AppTheme.seedColor, AppTheme.accentColor],
-            ),
-            OnboardingStep(
-              titleKey: 'onboardingTitle2',
-              descriptionKey: 'onboardingBody2',
-              icon: Icons.kitchen_rounded,
-              gradientColors: [Color(0xFF38BDF8), Color(0xFF6366F1)],
-            ),
-            OnboardingStep(
-              titleKey: 'onboardingTitle3',
-              descriptionKey: 'onboardingBody3',
-              icon: Icons.favorite_rounded,
-              gradientColors: [Color(0xFFF97316), Color(0xFFFB7185)],
-            ),
-          ],
-        );
+    : steps = List.unmodifiable([
+        OnboardingStep(
+          titleKey: 'onboardingTitle1',
+          descriptionKey: 'onboardingBody1',
+          icon: Icons.auto_awesome,
+          gradientColors: [AppTheme.seedColor, AppTheme.accentColor],
+        ),
+        OnboardingStep(
+          titleKey: 'onboardingTitle2',
+          descriptionKey: 'onboardingBody2',
+          icon: Icons.kitchen_rounded,
+          gradientColors: [Color(0xFFD39A5C), Color(0xFFB65C45)],
+        ),
+        OnboardingStep(
+          titleKey: 'onboardingTitle3',
+          descriptionKey: 'onboardingBody3',
+          icon: Icons.favorite_rounded,
+          gradientColors: [Color(0xFFF97316), Color(0xFFFB7185)],
+        ),
+      ]);
 
   final OnboardingService _service;
   final PageController pageController = PageController();

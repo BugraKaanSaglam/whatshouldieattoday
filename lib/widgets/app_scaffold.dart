@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:yemek_tarifi_app/global/app_theme.dart';
+import 'package:yemek_tarifi_app/widgets/app_background.dart';
 
 class AppScaffold extends StatelessWidget {
-  const AppScaffold({
-    super.key,
-    this.appBar,
-    this.body,
-    this.bottomBar,
-  });
+  const AppScaffold({super.key, this.appBar, this.body, this.bottomBar});
 
   final PreferredSizeWidget? appBar;
   final Widget? body;
@@ -18,7 +14,7 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+        color: const Color(0xFFFFFAF2),
         child: Scaffold(
           extendBody: true,
           backgroundColor: Colors.transparent,
@@ -27,7 +23,7 @@ class AppScaffold extends StatelessWidget {
             duration: const Duration(milliseconds: 350),
             switchInCurve: Curves.easeOutCubic,
             switchOutCurve: Curves.easeInCubic,
-            child: body ?? const SizedBox(),
+            child: AppBackground(child: body ?? const SizedBox()),
           ),
           bottomNavigationBar: bottomBar == null
               ? null

@@ -61,9 +61,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.ios_share_rounded,
             title: 'shareAppTitle'.tr(),
             body: 'shareAppBody'.tr(),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ElevatedButton.icon(
                   onPressed: _shareApp,
@@ -73,11 +72,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: buttonTextStyle(fontSize: 15),
                   ),
                 ),
+                const SizedBox(height: 8),
                 OutlinedButton.icon(
                   onPressed: () => _launchStoreUrl(AppShareService.appStoreUri),
                   icon: const Icon(Icons.apple_rounded),
                   label: Text('openAppStore'.tr()),
                 ),
+                const SizedBox(height: 8),
                 OutlinedButton.icon(
                   onPressed: () =>
                       _launchStoreUrl(AppShareService.playStoreUri),
@@ -110,14 +111,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF111827), Color(0xFF1D4ED8)],
+          colors: [Color(0xFF251914), Color(0xFF6A392B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D4ED8).withValues(alpha: 0.24),
+            color: const Color(0xFF6A392B).withValues(alpha: 0.24),
             blurRadius: 24,
             offset: const Offset(0, 16),
           ),

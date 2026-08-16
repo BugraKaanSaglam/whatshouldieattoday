@@ -54,14 +54,14 @@ class _KitchenScreenState extends State<KitchenScreen> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
+          colors: [Color(0xFF2B211C), Color(0xFF8D6E53)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F766E).withValues(alpha: 0.18),
+            color: const Color(0xFF8D6E53).withValues(alpha: 0.18),
             blurRadius: 20,
             offset: const Offset(0, 14),
           ),
@@ -190,7 +190,10 @@ class _KitchenScreenState extends State<KitchenScreen> {
       label: Text("save".tr(), style: buttonTextStyle()),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green,
-        minimumSize: const Size.fromHeight(54),
+        minimumSize: const Size.fromHeight(46),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        elevation: 1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -203,7 +206,10 @@ class _KitchenScreenState extends State<KitchenScreen> {
       label: Text("deleteAllSavedIngredients".tr(), style: buttonTextStyle()),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.red,
-        minimumSize: const Size.fromHeight(54),
+        minimumSize: const Size.fromHeight(46),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        elevation: 1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

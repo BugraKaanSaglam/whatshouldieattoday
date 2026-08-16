@@ -5,6 +5,14 @@
             "label": "prepare-supabase-config",
             "type": "shell",
             "command": "dart run tool/prepare_supabase_config.dart",
+            "presentation": {
+                "reveal": "silent",
+                "revealProblems": "onProblem",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
             "problemMatcher": []
         }
     ]

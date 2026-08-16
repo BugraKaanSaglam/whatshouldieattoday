@@ -113,14 +113,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF111827), Color(0xFF0F766E)],
+          colors: [Color(0xFF251914), Color(0xFF6A392B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F766E).withValues(alpha: 0.18),
+            color: const Color(0xFF6A392B).withValues(alpha: 0.18),
             blurRadius: 22,
             offset: const Offset(0, 16),
           ),

@@ -11,7 +11,6 @@ import 'package:yemek_tarifi_app/core/network/maintenance_service.dart';
 import 'package:yemek_tarifi_app/providers/home/main_viewmodel.dart';
 import 'package:yemek_tarifi_app/global/app_globals.dart';
 import 'package:yemek_tarifi_app/core/utils/media_query_size.dart';
-import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
 import 'package:yemek_tarifi_app/widgets/offline/offline_favorites_view.dart';
@@ -84,57 +83,38 @@ class _MainScreenState extends State<MainScreen> {
     bool isMaintenance,
     MainViewModel viewModel,
   ) {
-    final int ingredientsCount = globalDataBase?.initialIngredients.length ?? 0;
-    final int favoritesCount = globalDataBase?.favorites.length ?? 0;
-    final int? totalCount = viewModel.totalRecipeCount;
-    final String totalRecipesLabel = totalCount == null
-        ? 'loading'.tr()
-        : '$totalCount ${'recipes'.tr()}';
-
     final List<_MenuItemData> menuItems = [
-      _MenuItemData(
-        title: 'startCooking'.tr(),
-        routePath: AppRoutes.recipes,
-        icon: Icons.dining_outlined,
-        gradientColors: const [Color(0xFFFF9A8B), Color(0xFFF97316)],
-        chipLabel: totalRecipesLabel,
-        chipBlinking: true,
-        disabled: isMaintenance,
-      ),
       _MenuItemData(
         title: 'favorites'.tr(),
         routePath: AppRoutes.favorites,
         icon: Icons.favorite_border_outlined,
-        gradientColors: const [Color(0xFFFB7185), Color(0xFFEC4899)],
+        gradientColors: const [Color(0xFFE9B8A4), Color(0xFFB65C45)],
         disabled: isMaintenance,
       ),
       _MenuItemData(
         title: 'initialIngredientsSelectorScreenTitle'.tr(),
         routePath: AppRoutes.kitchen,
         icon: Icons.kitchen_outlined,
-        gradientColors: const [Color(0xFF8B5CF6), Color(0xFF6366F1)],
+        gradientColors: const [Color(0xFFD8C3A5), Color(0xFF8D6E53)],
         highlightIfEmpty: true,
-        chipLabel: 'storedIngredientsCount'.tr(
-          args: [ingredientsCount.toString()],
-        ),
         disabled: isMaintenance,
       ),
       _MenuItemData(
         title: 'settingsTitle'.tr(),
         routePath: AppRoutes.settings,
         icon: Icons.settings,
-        gradientColors: const [Color(0xFF38BDF8), Color(0xFF0EA5E9)],
+        gradientColors: const [Color(0xFFD3D0C9), Color(0xFF70665A)],
       ),
       _MenuItemData(
         title: 'creditsTitle'.tr(),
         routePath: AppRoutes.credits,
         icon: Icons.front_hand_outlined,
-        gradientColors: const [Color(0xFF34D399), Color(0xFF22C55E)],
+        gradientColors: const [Color(0xFFD1B9A7), Color(0xFF8E5E4D)],
       ),
       _MenuItemData(
         title: 'exit'.tr(),
         icon: Icons.exit_to_app_outlined,
-        gradientColors: const [Color(0xFFEF4444), Color(0xFFDC2626)],
+        gradientColors: const [Color(0xFFE4B5AA), Color(0xFFB34B43)],
         onTapOverride: _handleExit,
       ),
     ];
@@ -144,12 +124,7 @@ class _MainScreenState extends State<MainScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHomeHero(
-            context,
-            totalRecipesLabel: totalRecipesLabel,
-            ingredientsCount: ingredientsCount,
-            favoritesCount: favoritesCount,
-          ),
+          _buildHomeHero(context, isMaintenance: isMaintenance),
           const SizedBox(height: 20),
           _buildMenuGrid(menuItems, viewModel.isBlinking),
         ],
@@ -157,70 +132,120 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildHomeHero(
-    BuildContext context, {
-    required String totalRecipesLabel,
-    required int ingredientsCount,
-    required int favoritesCount,
-  }) {
+  Widget _buildHomeHero(BuildContext context, {required bool isMaintenance}) {
     final theme = Theme.of(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF111827), Color(0xFF7C3AED)],
+          colors: [Color(0xFF251914), Color(0xFF6A392B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF7C3AED).withValues(alpha: 0.18),
-            blurRadius: 22,
-            offset: const Offset(0, 16),
+            color: const Color(0xFF6A392B).withValues(alpha: 0.22),
+            blurRadius: 24,
+            offset: const Offset(0, 14),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Text(
-            'homeHeroTitle'.tr(),
-            style: theme.textTheme.headlineMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
+          Positioned(
+            right: -52,
+            top: -64,
+            child: Container(
+              width: 170,
+              height: 170,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.07),
+              ),
             ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            'homeHeroBody'.tr(),
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.84),
+          Positioned(
+            left: -42,
+            bottom: -86,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black.withValues(alpha: 0.08),
+              ),
             ),
           ),
-          const SizedBox(height: 18),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              _HeroInfoChip(
-                icon: Icons.menu_book_rounded,
-                label: totalRecipesLabel,
-              ),
-              _HeroInfoChip(
-                icon: Icons.kitchen_rounded,
-                label: 'storedIngredientsCount'.tr(
-                  args: [ingredientsCount.toString()],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.asset(
+                        'assets/icon/icon.png',
+                        width: 48,
+                        height: 48,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: 52,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3D8A8).withValues(alpha: 0.72),
+                        borderRadius: BorderRadius.circular(99),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              _HeroInfoChip(
-                icon: Icons.favorite_rounded,
-                label: 'settingsFavoritesStat'.tr(
-                  args: [favoritesCount.toString()],
+                const SizedBox(height: 24),
+                Text(
+                  'homeHeroTitle'.tr(),
+                  style: theme.textTheme.displayLarge?.copyWith(
+                    color: Colors.white,
+                    fontSize: 28,
+                    height: 1.08,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                Text(
+                  'homeHeroBody'.tr(),
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.78),
+                  ),
+                ),
+                const SizedBox(height: 22),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: isMaintenance
+                        ? null
+                        : () => context.push(AppRoutes.recipes),
+                    icon: const Icon(Icons.arrow_forward_rounded),
+                    label: Text('startCooking'.tr()),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF3D8A8),
+                      foregroundColor: const Color(0xFF2B1D17),
+                      disabledBackgroundColor: Colors.white24,
+                      disabledForegroundColor: Colors.white54,
+                      elevation: 0,
+                      minimumSize: const Size.fromHeight(48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -228,41 +253,41 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildMenuGrid(List<_MenuItemData> menuItems, bool isBlinking) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: menuItems.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 0.85,
-      ),
-      itemBuilder: (context, index) {
+    return Column(
+      children: List.generate(menuItems.length, (index) {
         final item = menuItems[index];
         final bool shouldBlink = item.highlightIfEmpty && isBlinking;
-        return _AnimatedMenuTile(
-          index: index,
-          child: _BlinkingMenuItem(
-            isBlinking: shouldBlink,
-            child: _DashboardTile(
-              item: item,
-              onTap: item.disabled
-                  ? null
-                  : () async {
-                      if (item.onTapOverride != null) {
-                        item.onTapOverride!.call();
-                        return;
-                      }
-                      if (item.routePath == null) return;
-                      await context.push(item.routePath!);
-                      if (!mounted) return;
-                      setState(() {});
-                    },
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: index == menuItems.length - 1 ? 0 : 10,
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 92,
+            child: _AnimatedMenuTile(
+              index: index,
+              child: _BlinkingMenuItem(
+                isBlinking: shouldBlink,
+                child: _DashboardTile(
+                  item: item,
+                  onTap: item.disabled
+                      ? null
+                      : () async {
+                          if (item.onTapOverride != null) {
+                            item.onTapOverride!.call();
+                            return;
+                          }
+                          if (item.routePath == null) return;
+                          await context.push(item.routePath!);
+                          if (!mounted) return;
+                          setState(() {});
+                        },
+                ),
+              ),
             ),
           ),
         );
-      },
+      }),
     );
   }
 
@@ -359,8 +384,6 @@ class _MenuItemData {
   final List<Color> gradientColors;
   final bool highlightIfEmpty;
   final VoidCallback? onTapOverride;
-  final String? chipLabel;
-  final bool chipBlinking;
   final bool disabled;
 
   const _MenuItemData({
@@ -370,8 +393,6 @@ class _MenuItemData {
     this.routePath,
     this.highlightIfEmpty = false,
     this.onTapOverride,
-    this.chipLabel,
-    this.chipBlinking = false,
     this.disabled = false,
   });
 }
@@ -386,14 +407,14 @@ class _AnimatedMenuTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: Duration(milliseconds: 450 + (index * 80)),
-      curve: Curves.easeOutBack,
+      duration: Duration(milliseconds: 360 + (index * 50)),
+      curve: Curves.easeOutCubic,
       builder: (context, value, child) {
         final double opacity = value.clamp(0, 1);
         return Transform.translate(
           offset: Offset(0, (1 - value) * 24),
           child: Transform.scale(
-            scale: 0.94 + (0.06 * value),
+            scale: 0.98 + (0.02 * value),
             child: Opacity(opacity: opacity, child: child),
           ),
         );
@@ -413,242 +434,103 @@ class _DashboardTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final bool disabled = item.disabled;
-    final List<Color> colors = disabled
-        ? [Colors.grey.shade400, Colors.grey.shade500]
-        : item.gradientColors;
+    final Color accent = disabled
+        ? const Color(0xFF9CA3AF)
+        : item.gradientColors.last;
     return InkWell(
-      borderRadius: BorderRadius.circular(28),
+      borderRadius: BorderRadius.circular(20),
       onTap: onTap == null ? null : () async => await onTap!(),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: colors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(28),
+          color: disabled
+              ? const Color(0xFFE8E2DC)
+              : Colors.white.withValues(alpha: 0.94),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: accent.withValues(alpha: 0.24)),
           boxShadow: [
             BoxShadow(
-              color: (disabled ? Colors.grey : item.gradientColors.last)
-                  .withValues(alpha: 0.28),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
+              color: accent.withValues(alpha: 0.12),
+              blurRadius: 18,
+              offset: const Offset(0, 9),
             ),
           ],
         ),
         child: Stack(
           children: [
             Positioned(
-              right: -18,
-              top: -18,
+              right: -24,
+              top: -42,
               child: Container(
-                width: 110,
-                height: 110,
+                width: 130,
+                height: 130,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
+                  color: accent.withValues(alpha: 0.06),
                   shape: BoxShape.circle,
                 ),
               ),
             ),
             Positioned(
-              left: -24,
-              bottom: -24,
+              left: -36,
+              bottom: -54,
               child: Container(
-                width: 90,
-                height: 90,
+                width: 110,
+                height: 110,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.08),
+                  color: accent.withValues(alpha: 0.04),
                   shape: BoxShape.circle,
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.22),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(item.icon, color: Colors.white, size: 28),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      item.title,
-                      style: textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
-                        fontSize: 17,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (disabled) ...[
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.25),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.lock_clock_rounded,
-                              size: 14,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'maintenanceBadge'.tr(),
-                              style: textTheme.bodySmall?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 11,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    if (item.chipLabel != null) ...[
-                      const SizedBox(height: 12),
-                      _PulsingBadge(
-                        enabled: item.chipBlinking,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+                    child: Icon(item.icon, color: accent, size: 23),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.title,
+                          style: textTheme.titleMedium?.copyWith(
+                            color: const Color(0xFF2B211C),
+                            fontWeight: FontWeight.w700,
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            item.chipLabel!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (disabled)
+                          Text(
+                            'maintenanceBadge'.tr(),
                             style: textTheme.bodySmall?.copyWith(
-                              color: AppTheme.seedColor,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12,
+                              color: const Color(0xFF7A6E65),
+                              fontWeight: FontWeight.w600,
                             ),
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 17,
+                    color: accent,
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _PulsingBadge extends StatefulWidget {
-  final Widget child;
-  final bool enabled;
-
-  const _PulsingBadge({required this.child, required this.enabled});
-
-  @override
-  State<_PulsingBadge> createState() => _PulsingBadgeState();
-}
-
-class _HeroInfoChip extends StatelessWidget {
-  const _HeroInfoChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: Colors.white),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(color: Colors.white),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PulsingBadgeState extends State<_PulsingBadge>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
-    if (widget.enabled) _controller.repeat(reverse: true);
-  }
-
-  @override
-  void didUpdateWidget(covariant _PulsingBadge oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.enabled && !_controller.isAnimating) {
-      _controller.repeat(reverse: true);
-    } else if (!widget.enabled && _controller.isAnimating) {
-      _controller.stop();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        final double scale = 0.96 + (0.08 * (_controller.value));
-        final double opacity = 0.7 + (0.3 * (_controller.value));
-        return Opacity(
-          opacity: widget.enabled ? opacity : 1,
-          child: Transform.scale(
-            scale: widget.enabled ? scale : 1,
-            child: child,
-          ),
-        );
-      },
-      child: widget.child,
     );
   }
 }

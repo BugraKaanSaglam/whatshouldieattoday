@@ -350,27 +350,24 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
   }
 
   Widget _buildPrimaryActions() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: _shareRecipe,
-            icon: const Icon(Icons.share_rounded),
-            label: Text('share'.tr()),
-          ),
+        OutlinedButton.icon(
+          onPressed: _shareRecipe,
+          icon: const Icon(Icons.share_rounded),
+          label: Text('share'.tr()),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: _favorite,
-            icon: Icon(
-              _resolvedIsFavorite
-                  ? Icons.favorite
-                  : Icons.favorite_border_rounded,
-            ),
-            label: Text(
-              _resolvedIsFavorite ? 'saved'.tr() : 'favoriteAction'.tr(),
-            ),
+        const SizedBox(height: 8),
+        ElevatedButton.icon(
+          onPressed: _favorite,
+          icon: Icon(
+            _resolvedIsFavorite
+                ? Icons.favorite
+                : Icons.favorite_border_rounded,
+          ),
+          label: Text(
+            _resolvedIsFavorite ? 'saved'.tr() : 'favoriteAction'.tr(),
           ),
         ),
       ],

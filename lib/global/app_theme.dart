@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 class AppTheme {
   AppTheme._();
 
-  static const Color seedColor = Color(0xFFF97316);
-  static const Color secondaryColor = Color(0xFF4F46E5);
-  static const Color accentColor = Color(0xFFEC4899);
-  static const Color appBarStart = Color(0xFFEA580C);
-  static const Color appBarEnd = Color(0xFFDB2777);
+  static const Color seedColor = Color(0xFFB65C45);
+  static const Color secondaryColor = Color(0xFF6B4F3A);
+  static const Color accentColor = Color(0xFFD39A5C);
+  static const Color appBarStart = Color(0xFF251914);
+  static const Color appBarEnd = Color(0xFF6A392B);
 
   static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [Color(0xFFFFF7ED), Color(0xFFFFFBF0), Color(0xFFF1F5F9)],
+    colors: [Color(0xFFFFF9F2), Color(0xFFFFF4E8), Color(0xFFEFE2D3)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -97,31 +97,40 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          elevation: 4,
+          elevation: 1,
           backgroundColor: seedColor,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          minimumSize: const Size(0, 46),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          disabledBackgroundColor: const Color(0xFFE5E7EB),
+          disabledForegroundColor: const Color(0xFF9CA3AF),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFF1F2937),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-          side: BorderSide(color: Colors.blueGrey.shade100),
+          foregroundColor: const Color(0xFF374151),
+          minimumSize: const Size(0, 46),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          side: const BorderSide(color: Color(0xFFD1D5DB)),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: seedColor,
+          minimumSize: const Size(0, 42),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

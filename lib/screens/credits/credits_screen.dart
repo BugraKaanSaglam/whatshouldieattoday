@@ -80,10 +80,13 @@ class CreditsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                OutlinedButton.icon(
-                  onPressed: () => _openLicense(context),
-                  icon: const Icon(Icons.launch_rounded),
-                  label: Text('viewLicense'.tr()),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _openLicense(context),
+                    icon: const Icon(Icons.launch_rounded),
+                    label: Text('viewLicense'.tr()),
+                  ),
                 ),
               ],
             ),
@@ -99,14 +102,14 @@ class CreditsScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF111827), Color(0xFF2563EB)],
+          colors: [Color(0xFF251914), Color(0xFF6A392B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2563EB).withValues(alpha: 0.2),
+            color: const Color(0xFF6A392B).withValues(alpha: 0.2),
             blurRadius: 22,
             offset: const Offset(0, 16),
           ),

@@ -14,6 +14,7 @@ import 'package:yemek_tarifi_app/core/network/onboarding_service.dart';
 import 'package:yemek_tarifi_app/core/network/version_service.dart';
 import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/widgets/connectivity_status_banner.dart';
+import 'package:yemek_tarifi_app/widgets/app_background.dart';
 
 class FoodApp extends StatefulWidget {
   const FoodApp({super.key});
@@ -157,37 +158,39 @@ class SupabaseConfigErrorApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       home: Scaffold(
         appBar: AppBar(title: const Text('Configuration required')),
-        body: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 560),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Supabase configuration is missing.',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Create supabase.env or tool/config/supabase.local.json '
-                      'with the public project URL and publishable key, then '
-                      'restart the app.',
-                    ),
-                    const SizedBox(height: 20),
-                    const SelectableText(
-                      'dart run tool/prepare_supabase_config.dart',
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'VS Code launch profiles prepare this file automatically. '
-                      'For Android Studio, run the command once before pressing '
-                      'Run.',
-                    ),
-                  ],
+        body: AppBackground(
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Supabase configuration is missing.',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Create supabase.env or tool/config/supabase.local.json '
+                        'with the public project URL and publishable key, then '
+                        'restart the app.',
+                      ),
+                      const SizedBox(height: 20),
+                      const SelectableText(
+                        'dart run tool/prepare_supabase_config.dart',
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'VS Code launch profiles prepare this file automatically. '
+                        'For Android Studio, run the command once before pressing '
+                        'Run.',
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
