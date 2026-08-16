@@ -29,7 +29,7 @@ class SplashScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [AppTheme.seedColor, AppTheme.accentColor],
@@ -38,10 +38,15 @@ class SplashScreen extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(22),
                 ),
-                child: const Icon(
-                  Icons.restaurant_menu_rounded,
-                  color: Colors.white,
-                  size: 34,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.asset(
+                    'assets/icon/icon.png',
+                    width: 74,
+                    height: 74,
+                    fit: BoxFit.cover,
+                    semanticLabel: 'appName'.tr(),
+                  ),
                 ),
               ),
               const SizedBox(height: 18),
