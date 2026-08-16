@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class TestAssetLoader extends AssetLoader {
   const TestAssetLoader();
@@ -58,6 +59,11 @@ class TestAssetLoader extends AssetLoader {
         'No recipes matched this selection yet. Try removing or changing a few ingredients.',
     'selectionPrimaryAction': 'Find recipes',
     'selectionSecondaryAction': 'Clear selection',
+    'searchForIngredients': 'Search For Ingredients',
+    'tapToAddIngredients': 'Tap to search and add',
+    'selectedIngredients': 'Selected ingredients',
+    'noIngredientsFound': 'No ingredients found',
+    'unknownError': 'Something went wrong',
     'viewRecipe': 'Open recipe',
     'feedbackScreen': 'Feedback',
     'feedbackHeroBody':
@@ -194,6 +200,11 @@ class TestAssetLoader extends AssetLoader {
         'Bu secimle eslesen tarif bulunamadi. Birkac malzeme cikarip tekrar dene.',
     'selectionPrimaryAction': 'Tarifleri bul',
     'selectionSecondaryAction': 'Secimi temizle',
+    'searchForIngredients': 'Malzeme ara',
+    'tapToAddIngredients': 'Arayip eklemek icin dokun',
+    'selectedIngredients': 'Secilen malzemeler',
+    'noIngredientsFound': 'Malzeme bulunamadi',
+    'unknownError': 'Bir sorun olustu',
     'viewRecipe': 'Tarifi ac',
     'feedbackScreen': 'Geri bildirim',
     'feedbackHeroBody':
@@ -282,7 +293,7 @@ class TestAssetLoader extends AssetLoader {
   }
 }
 
-Widget buildTestApp(Widget child) {
+Widget buildTestApp(Widget child, {GoRouter? router}) {
   return EasyLocalization(
     supportedLocales: const <Locale>[Locale('en', 'US'), Locale('tr', 'TR')],
     path: 'unused',
@@ -290,6 +301,14 @@ Widget buildTestApp(Widget child) {
     assetLoader: const TestAssetLoader(),
     child: Builder(
       builder: (context) {
+        if (router != null) {
+          return MaterialApp.router(
+            locale: context.locale,
+            supportedLocales: context.supportedLocales,
+            localizationsDelegates: context.localizationDelegates,
+            routerConfig: router,
+          );
+        }
         return MaterialApp(
           locale: context.locale,
           supportedLocales: context.supportedLocales,

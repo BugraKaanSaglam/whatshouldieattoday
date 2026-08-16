@@ -13,6 +13,7 @@ import 'package:yemek_tarifi_app/screens/kitchen/kitchen_screen.dart';
 import 'package:yemek_tarifi_app/screens/onboarding/onboarding_screen.dart';
 import 'package:yemek_tarifi_app/screens/recipes/food_selection_screen.dart';
 import 'package:yemek_tarifi_app/models/recipe/food.dart';
+import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
 import 'package:yemek_tarifi_app/screens/recipes/selected_food_screen.dart';
 import 'package:yemek_tarifi_app/screens/settings/settings_screen.dart';
 
@@ -82,7 +83,18 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.recipes,
-        builder: (context, state) => const FoodSelectionScreen(),
+        builder: (context, state) {
+          final List<Ingredient>? initialIngredients =
+              state.extra is List<Ingredient>
+              ? List<Ingredient>.from(state.extra as List<Ingredient>)
+              : null;
+          final bool openSearch =
+              state.uri.queryParameters['openSearch'] == 'true';
+          return FoodSelectionScreen(
+            initialIngredients: initialIngredients,
+            openSearch: openSearch,
+          );
+        },
       ),
       GoRoute(
         path: '/recipe/:id',

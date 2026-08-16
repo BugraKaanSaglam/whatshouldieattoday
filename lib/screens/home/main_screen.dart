@@ -10,7 +10,9 @@ import 'package:yemek_tarifi_app/core/network/connection_monitor.dart';
 import 'package:yemek_tarifi_app/core/network/maintenance_service.dart';
 import 'package:yemek_tarifi_app/providers/home/main_viewmodel.dart';
 import 'package:yemek_tarifi_app/global/app_globals.dart';
+import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/core/utils/media_query_size.dart';
+import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
 import 'package:yemek_tarifi_app/widgets/offline/offline_favorites_view.dart';
@@ -34,12 +36,16 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   late final MainViewModel _viewModel;
   late final ConnectionMonitor _connectionMonitor;
+  late List<Ingredient> _selectedIngredients;
 
   @override
   void initState() {
     super.initState();
     _viewModel = widget.viewModel ?? MainViewModel();
     _connectionMonitor = widget.connectionMonitor ?? ConnectionMonitor.shared;
+    _selectedIngredients = List<Ingredient>.from(
+      globalDataBase?.initialIngredients ?? const <Ingredient>[],
+    );
     _viewModel.init();
   }
 
@@ -222,15 +228,17 @@ class _MainScreenState extends State<MainScreen> {
                     color: Colors.white.withValues(alpha: 0.78),
                   ),
                 ),
+                if (_selectedIngredients.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildSelectedIngredientsSummary(context, isMaintenance),
+                ],
                 const SizedBox(height: 22),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: isMaintenance
-                        ? null
-                        : () => context.push(AppRoutes.recipes),
+                    onPressed: isMaintenance ? null : _openRecipeDiscovery,
                     icon: const Icon(Icons.arrow_forward_rounded),
-                    label: Text('startCooking'.tr()),
+                    label: Text('selectionPrimaryAction'.tr()),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF3D8A8),
                       foregroundColor: const Color(0xFF2B1D17),
@@ -249,6 +257,73 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSelectedIngredientsSummary(
+    BuildContext context,
+    bool isMaintenance,
+  ) {
+    final bool isTurkish = context.locale.languageCode == 'tr';
+    final int visibleCount = _selectedIngredients.length > 3
+        ? 3
+        : _selectedIngredients.length;
+    final int remainingCount = _selectedIngredients.length - visibleCount;
+    return Semantics(
+      button: !isMaintenance,
+      label: 'selectedIngredients'.tr(),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isMaintenance ? null : _openRecipeDiscovery,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'selectedIngredients'.tr(),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.72),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 7,
+                  runSpacing: 7,
+                  children: [
+                    for (int index = 0; index < visibleCount; index++)
+                      _HomeIngredientPill(
+                        label:
+                            isTurkish &&
+                                _selectedIngredients[index].nameTr.isNotEmpty
+                            ? _selectedIngredients[index].nameTr
+                            : _selectedIngredients[index].name,
+                      ),
+                    if (remainingCount > 0)
+                      _HomeIngredientPill(label: '+$remainingCount'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openRecipeDiscovery() async {
+    if (!mounted) return;
+    await context.push(
+      '${AppRoutes.recipes}?openSearch=true',
+      extra: List<Ingredient>.from(_selectedIngredients),
     );
   }
 
@@ -372,6 +447,32 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _HomeIngredientPill extends StatelessWidget {
+  const _HomeIngredientPill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 180),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+      ),
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(color: Colors.white),
       ),
     );
   }

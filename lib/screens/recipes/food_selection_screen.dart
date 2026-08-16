@@ -18,9 +18,17 @@ import 'package:yemek_tarifi_app/core/utils/form_decorations.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/widgets/app_surface.dart';
+import 'package:yemek_tarifi_app/widgets/recipes/ingredient_selection_sheet.dart';
 
 class FoodSelectionScreen extends StatefulWidget {
-  const FoodSelectionScreen({super.key});
+  const FoodSelectionScreen({
+    super.key,
+    this.initialIngredients,
+    this.openSearch = false,
+  });
+
+  final List<Ingredient>? initialIngredients;
+  final bool openSearch;
 
   @override
   State<FoodSelectionScreen> createState() => _FoodSelectionScreenState();
@@ -29,13 +37,32 @@ class FoodSelectionScreen extends StatefulWidget {
 class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
   late final FoodSelectionViewModel _viewModel;
   late final ScrollController _scrollController;
+  late final bool _isAutomaticSearchRoute;
+  bool _isInitialFiltering = false;
+  bool _openSearchConsumed = false;
+  bool _isIngredientSheetOpen = false;
+
+  bool get _isResultsFlow =>
+      !_isAutomaticSearchRoute && widget.initialIngredients?.isNotEmpty == true;
 
   @override
   void initState() {
-    _viewModel = FoodSelectionViewModel()
-      ..init(initialIngredients: globalDataBase!.initialIngredients);
-    _scrollController = ScrollController()..addListener(_onScroll);
     super.initState();
+    _isAutomaticSearchRoute = widget.openSearch;
+    final List<Ingredient> initialIngredients =
+        widget.initialIngredients ?? globalDataBase!.initialIngredients;
+    _viewModel = FoodSelectionViewModel()
+      ..init(initialIngredients: initialIngredients);
+    _scrollController = ScrollController()..addListener(_onScroll);
+    if (_isAutomaticSearchRoute) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _consumeOpenSearchIntent();
+      });
+    } else if (_isResultsFlow && initialIngredients.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _startInitialFiltering();
+      });
+    }
   }
 
   @override
@@ -73,19 +100,21 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
         ),
         slivers: [
           SliverToBoxAdapter(child: _buildSelectionHero(context, viewModel)),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverToBoxAdapter(
-            child: IngredientSearchDropdown(
-              dropdownSelectedItems: viewModel.selectedIngredients,
-              onItemsChanged: viewModel.updateSelectedIngredients,
+          if (!_isAutomaticSearchRoute && !_isResultsFlow) ...[
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(
+              child: IngredientSearchDropdown(
+                dropdownSelectedItems: viewModel.selectedIngredients,
+                onItemsChanged: viewModel.updateSelectedIngredients,
+              ),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: _buildSelectionActions(context, viewModel),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: _buildSelectionActions(context, viewModel),
+              ),
             ),
-          ),
+          ],
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
@@ -93,10 +122,74 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          ..._buildFoodResultSlivers(context, viewModel),
+          if (_isInitialFiltering)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: AppLoadingIndicator()),
+            )
+          else
+            ..._buildFoodResultSlivers(context, viewModel),
         ],
       ),
     );
+  }
+
+  Future<void> _startInitialFiltering() async {
+    await _runFiltering();
+  }
+
+  Future<void> _runFiltering() async {
+    if (!mounted) return;
+    setState(() => _isInitialFiltering = true);
+    final String? error = await _viewModel.startFiltering();
+    if (!mounted) return;
+    setState(() => _isInitialFiltering = false);
+    if (error != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error)));
+    }
+  }
+
+  Future<void> _consumeOpenSearchIntent() async {
+    if (!mounted || _openSearchConsumed) return;
+    _openSearchConsumed = true;
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    _clearOpenSearchRouteIntent();
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    await _openIngredientSheet();
+  }
+
+  void _clearOpenSearchRouteIntent() {
+    if (GoRouter.maybeOf(context) == null) return;
+    final GoRouterState routeState = GoRouterState.of(context);
+    if (routeState.uri.queryParameters['openSearch'] != 'true') return;
+    final Map<String, String> queryParameters = Map<String, String>.from(
+      routeState.uri.queryParameters,
+    )..remove('openSearch');
+    context.replace(
+      routeState.uri.replace(queryParameters: queryParameters).toString(),
+      extra: List<Ingredient>.from(_viewModel.selectedIngredients),
+    );
+  }
+
+  Future<void> _openIngredientSheet() async {
+    if (!mounted || _isIngredientSheetOpen) return;
+    _isIngredientSheetOpen = true;
+    try {
+      final List<Ingredient>? selected = await showIngredientSelectionSheet(
+        context,
+        initialSelectedIngredients: _viewModel.selectedIngredients,
+        onSelectionChanged: _viewModel.updateSelectedIngredients,
+      );
+      if (!mounted || selected == null) return;
+      _viewModel.updateSelectedIngredients(selected);
+      await _runFiltering();
+    } finally {
+      _isIngredientSheetOpen = false;
+    }
   }
 
   List<Widget> _buildFoodResultSlivers(
@@ -213,6 +306,20 @@ class _FoodSelectionScreenState extends State<FoodSelectionScreen> {
                       : 'clickFilterForMore'.tr(),
                 ),
               ],
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _openIngredientSheet,
+                icon: const Icon(Icons.search_rounded),
+                label: Text('searchForIngredients'.tr()),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.42)),
+                  minimumSize: const Size.fromHeight(46),
+                ),
+              ),
             ),
           ],
         ),

@@ -4,11 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:yemek_tarifi_app/core/configs/router/app_routes.dart';
+import 'package:yemek_tarifi_app/global/app_globals.dart';
+import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
 import 'package:yemek_tarifi_app/providers/favorites/favorites_viewmodel.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
 import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 import 'package:yemek_tarifi_app/widgets/favorites/favorite_food_list_item.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
+import 'package:yemek_tarifi_app/widgets/recipes/ingredient_selection_sheet.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key, this.viewModel});
@@ -21,11 +24,15 @@ class FavoritesScreen extends StatefulWidget {
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
   late final FavoritesViewModel _viewModel;
+  late List<Ingredient> _searchIngredients;
 
   @override
   void initState() {
     super.initState();
     _viewModel = widget.viewModel ?? FavoritesViewModel();
+    _searchIngredients = List<Ingredient>.from(
+      globalDataBase?.initialIngredients ?? const <Ingredient>[],
+    );
     _viewModel.loadFavorites();
   }
 
@@ -64,9 +71,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             title: 'noFavoritesYet'.tr(),
             message: 'favoritesOfflineHintBody'.tr(),
             action: ElevatedButton.icon(
-              onPressed: () => context.push(AppRoutes.recipes),
+              onPressed: _openIngredientSearch,
               icon: const Icon(Icons.restaurant_menu_rounded),
-              label: Text('startCooking'.tr()),
+              label: Text('selectionPrimaryAction'.tr()),
             ),
           ),
         ),
@@ -114,6 +121,19 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         ),
       ],
     );
+  }
+
+  Future<void> _openIngredientSearch() async {
+    final List<Ingredient>? selected = await showIngredientSelectionSheet(
+      context,
+      initialSelectedIngredients: _searchIngredients,
+      onSelectionChanged: (ingredients) {
+        if (!mounted) return;
+        setState(() => _searchIngredients = List<Ingredient>.from(ingredients));
+      },
+    );
+    if (!mounted || selected == null || selected.isEmpty) return;
+    await context.push(AppRoutes.recipes, extra: selected);
   }
 }
 
