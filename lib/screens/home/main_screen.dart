@@ -194,7 +194,7 @@ class _MainScreenState extends State<MainScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(14),
                       child: Image.asset(
-                        'assets/icon/icon.png',
+                        'assets/images/app_logo.png',
                         width: 48,
                         height: 48,
                         fit: BoxFit.cover,
