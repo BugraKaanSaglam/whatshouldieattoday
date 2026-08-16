@@ -1,0 +1,11 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "prepare-supabase-config",
+            "type": "shell",
+            "command": "dart run tool/prepare_supabase_config.dart",
+            "problemMatcher": []
+        }
+    ]
+}

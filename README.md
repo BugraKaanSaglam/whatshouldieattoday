@@ -98,6 +98,16 @@ cp tool/config/supabase.example.json tool/config/supabase.local.json
 
    Fill in the public project URL and publishable key, then pass it to Flutter
    with `--dart-define-from-file`. Never put a `service_role` key in this file.
+   If the ignored `supabase.env` file already contains
+   `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` (or the legacy
+   `SUPABASE_ANON_KEY`), prepare the local JSON automatically:
+
+```bash
+dart run tool/prepare_supabase_config.dart
+```
+
+   VS Code launch profiles run this preparation step automatically. For
+   Android Studio, run it once before pressing Run.
 4. Run the app:
 
 ```bash

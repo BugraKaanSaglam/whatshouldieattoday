@@ -143,3 +143,57 @@ class _FoodAppState extends State<FoodApp> with WidgetsBindingObserver {
     );
   }
 }
+
+/// Visible fallback for local launches that did not pass the public Supabase
+/// build configuration. This prevents the native splash screen from looking
+/// frozen while the async entrypoint has already terminated.
+class SupabaseConfigErrorApp extends StatelessWidget {
+  const SupabaseConfigErrorApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Configuration required')),
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Supabase configuration is missing.',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Create supabase.env or tool/config/supabase.local.json '
+                      'with the public project URL and publishable key, then '
+                      'restart the app.',
+                    ),
+                    const SizedBox(height: 20),
+                    const SelectableText(
+                      'dart run tool/prepare_supabase_config.dart',
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'VS Code launch profiles prepare this file automatically. '
+                      'For Android Studio, run the command once before pressing '
+                      'Run.',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

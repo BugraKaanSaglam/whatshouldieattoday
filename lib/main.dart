@@ -29,6 +29,14 @@ Future<void> main() async {
     ),
   );
 
+  try {
+    SupabaseConfig.ensureSet();
+  } catch (error, stackTrace) {
+    AppLogger.e('Supabase configuration is missing', error, stackTrace);
+    runApp(const SupabaseConfigErrorApp());
+    return;
+  }
+
   final Language deviceLanguage = detectDeviceLanguage();
 
   globalDataBase = await DBHelper().getList(databaseVersion);
@@ -49,7 +57,6 @@ Future<void> main() async {
     isFirstLaunch = false;
   }
 
-  SupabaseConfig.ensureSet();
   await Supabase.initialize(
     url: SupabaseConfig.url,
     publishableKey: SupabaseConfig.publishableKey,
