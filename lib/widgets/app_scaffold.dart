@@ -14,7 +14,7 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        color: const Color(0xFFFFFAF2),
+        color: AppTheme.parchment,
         child: Scaffold(
           extendBody: true,
           backgroundColor: Colors.transparent,

@@ -19,6 +19,7 @@ import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/core/network/backend_service.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 
 typedef RecipeFoodLoader = Future<Food?> Function(int recipeId);
 typedef FavoriteToggleHandler =
@@ -287,11 +288,42 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
         child: SizedBox(
           height: 300,
           width: double.infinity,
-          child: FoodImage(
-            imageUrls: [coverUrl],
-            cacheKey: 'recipe-${food.recipeId}',
-            cacheWidth: 900,
-            cacheHeight: 700,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              FoodImage(
+                imageUrls: [coverUrl],
+                cacheKey: 'recipe-${food.recipeId}',
+                cacheWidth: 900,
+                cacheHeight: 700,
+              ),
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.transparent, Color(0xB8000000)],
+                    begin: Alignment.center,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 20,
+                right: 20,
+                bottom: 18,
+                child: Text(
+                  foodName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    shadows: const [
+                      Shadow(color: Colors.black54, blurRadius: 12),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -305,48 +337,43 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
         ? '$servingsValue ${'person'.tr()}'
         : null;
     if (servingsText != null) {
-      highlights.add(
-        Chip(
-          avatar: const Icon(
-            Icons.group_outlined,
-            size: 18,
-            color: Color(0xFF1F2937),
-          ),
-          label: Text(
-            servingsText,
-            style: const TextStyle(
-              color: Color(0xFF1F2937),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          backgroundColor: Colors.white,
-        ),
-      );
+      highlights.add(_metaBadge(Icons.group_outlined, servingsText));
     }
     final int? totalTime =
         food.totalTimeMinutes ?? food.cookTimeMinutes ?? food.prepTimeMinutes;
     final String timeInfo = formatDuration(totalTime);
     if (timeInfo.isNotEmpty) {
-      highlights.add(
-        Chip(
-          avatar: const Icon(
-            Icons.timer_outlined,
-            size: 18,
-            color: Color(0xFF1F2937),
-          ),
-          label: Text(
-            timeInfo,
-            style: const TextStyle(
-              color: Color(0xFF1F2937),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          backgroundColor: Colors.white,
-        ),
-      );
+      highlights.add(_metaBadge(Icons.timer_outlined, timeInfo));
     }
     if (highlights.isEmpty) return const SizedBox.shrink();
     return Wrap(spacing: 8, runSpacing: 8, children: highlights);
+  }
+
+  Widget _metaBadge(IconData icon, String label) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        border: Border.all(color: AppTheme.line),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 17, color: AppTheme.seedColor),
+            const SizedBox(width: 7),
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppTheme.ink,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildPrimaryActions() {
@@ -637,43 +664,12 @@ class _SelectedFoodScreenState extends State<SelectedFoodScreen> {
     required Widget child,
     IconData? icon,
   }) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.95),
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 18,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
+    return AppSurface(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              if (icon != null)
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.seedColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(icon, color: AppTheme.seedColor),
-                ),
-              if (icon != null) const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-            ],
-          ),
+          AppSectionHeader(title: title, icon: icon),
           const SizedBox(height: 16),
           child,
         ],

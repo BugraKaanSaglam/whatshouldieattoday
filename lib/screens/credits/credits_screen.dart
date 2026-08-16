@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
 
 const String _odblUrl = 'https://opendatacommons.org/licenses/odbl/1-0/';
@@ -163,50 +164,12 @@ class CreditsScreen extends StatelessWidget {
     required String subtitle,
     required Widget child,
   }) {
-    return Container(
-      width: double.infinity,
+    return AppSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 18,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppTheme.seedColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: AppTheme.seedColor),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          AppSectionHeader(icon: icon, title: title, description: subtitle),
           const SizedBox(height: 18),
           child,
         ],

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -11,20 +12,9 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppScaffold(
       body: Center(
-        child: Container(
+        child: AppSurface(
           margin: const EdgeInsets.symmetric(horizontal: 24),
           padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.92),
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 14),
-              ),
-            ],
-          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -62,7 +52,7 @@ class SplashScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 18),
-              const CircularProgressIndicator(),
+              const AppLoadingIndicator(),
             ],
           ),
         ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/widgets/app_background.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 
 /// Simple force-update screen with a pulsing background.
 class ForceUpdatePage extends StatelessWidget {
@@ -38,19 +39,17 @@ class ForceUpdatePage extends StatelessWidget {
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
-                      child: Container(
+                      child: AppSurface(
                         padding: const EdgeInsets.fromLTRB(22, 24, 22, 20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.18),
-                              blurRadius: 28,
-                              offset: const Offset(0, 16),
-                            ),
-                          ],
-                        ),
+                        color: AppTheme.surface,
+                        borderRadius: AppTheme.radiusLarge,
+                        shadow: const [
+                          BoxShadow(
+                            color: Color(0x2E0F0A06),
+                            blurRadius: 28,
+                            offset: Offset(0, 16),
+                          ),
+                        ],
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [

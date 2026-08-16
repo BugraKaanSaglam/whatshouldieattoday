@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:yemek_tarifi_app/core/favorites/favorites_store.dart';
 import 'package:yemek_tarifi_app/models/recipe/food.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 import 'package:yemek_tarifi_app/widgets/favorites/favorite_food_list_item.dart';
 
 class OfflineFavoritesView extends StatelessWidget {
@@ -19,13 +20,8 @@ class OfflineFavoritesView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
+          AppSurface(
             padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.94),
-              borderRadius: BorderRadius.circular(28),
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -48,13 +44,8 @@ class OfflineFavoritesView extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           if (cachedFoods.isEmpty)
-            Container(
-              width: double.infinity,
+            AppSurface(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.9),
-                borderRadius: BorderRadius.circular(22),
-              ),
               child: Text(
                 'offlineNoFavoritesBody'.tr(),
                 style: Theme.of(context).textTheme.bodyMedium,

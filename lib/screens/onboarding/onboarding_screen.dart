@@ -7,6 +7,7 @@ import 'package:yemek_tarifi_app/models/onboarding/onboarding_step.dart';
 import 'package:yemek_tarifi_app/core/network/onboarding_service.dart';
 import 'package:yemek_tarifi_app/providers/onboarding/onboarding_viewmodel.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key, required this.onFinished});
@@ -85,19 +86,8 @@ class OnboardingScreen extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.88),
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 16,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
+                    child: AppSurface(
+                      padding: const EdgeInsets.all(10),
                       child: SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -201,20 +191,8 @@ class _OnboardingPage extends StatelessWidget {
             child: Icon(step.icon, size: 70, color: Colors.white),
           ),
           const SizedBox(height: 32),
-          Container(
-            width: double.infinity,
+          AppSurface(
             padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 18,
-                  offset: const Offset(0, 12),
-                ),
-              ],
-            ),
             child: Column(
               children: [
                 Text(

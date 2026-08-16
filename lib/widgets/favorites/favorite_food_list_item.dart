@@ -35,41 +35,36 @@ class FavoriteFoodListItem extends StatelessWidget {
     final String coverUrl = BackendService.recipeImagePublicUrl(food.recipeId);
 
     return InkWell(
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
       onTap: () async {
         await context.push(AppRoutes.recipeById(food.recipeId), extra: food);
         onUpdateFavorites?.call();
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.95),
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 12),
-            ),
-          ],
+          color: AppTheme.surface.withValues(alpha: 0.96),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          border: Border.all(color: AppTheme.line),
+          boxShadow: AppTheme.softShadow,
         ),
         child: SizedBox(
-          height: 140,
+          height: 152,
           child: Row(
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(22),
+                  left: Radius.circular(AppTheme.radiusLarge),
                 ),
                 child: Hero(
                   tag: heroTag,
                   child: SizedBox(
-                    width: 120,
-                    height: 140,
+                    width: 132,
+                    height: 152,
                     child: FoodImage(
                       imageUrls: [coverUrl],
                       cacheKey: 'recipe-${food.recipeId}',
                       cacheWidth: 360,
-                      cacheHeight: 420,
+                      cacheHeight: 460,
                     ),
                   ),
                 ),

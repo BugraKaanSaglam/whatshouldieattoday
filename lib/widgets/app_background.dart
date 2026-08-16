@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:yemek_tarifi_app/global/app_theme.dart';
+
 /// Shared screen background used below each screen's app bar.
 ///
 /// The image is intentionally covered by a warm, translucent scrim so that
@@ -12,6 +14,10 @@ class AppBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final int cacheWidth = (mediaQuery.size.width * mediaQuery.devicePixelRatio)
+            .clamp(480.0, 720.0)
+        .round();
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -20,10 +26,23 @@ class AppBackground extends StatelessWidget {
             'assets/images/screen_background.png',
             fit: BoxFit.cover,
             alignment: Alignment.center,
+            cacheWidth: cacheWidth,
             filterQuality: FilterQuality.medium,
           ),
         ),
-        const ColoredBox(color: Color(0xCFFFFAF2)),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.parchment.withValues(alpha: 0.88),
+                AppTheme.parchment.withValues(alpha: 0.78),
+                AppTheme.surfaceMuted.withValues(alpha: 0.86),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
         child,
       ],
     );

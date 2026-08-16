@@ -17,6 +17,7 @@ import 'package:yemek_tarifi_app/providers/recipes/food_selection_viewmodel.dart
 import 'package:yemek_tarifi_app/core/utils/form_decorations.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:yemek_tarifi_app/global/app_theme.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 
 class FoodSelectionScreen extends StatefulWidget {
   const FoodSelectionScreen({super.key});
@@ -430,18 +431,13 @@ class FoodListItem extends StatelessWidget {
             context.push(AppRoutes.recipeById(food.recipeId), extra: food),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(26),
-            color: Colors.white.withValues(alpha: 0.95),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 18,
-                offset: const Offset(0, 12),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+            color: AppTheme.surface.withValues(alpha: 0.96),
+            border: Border.all(color: AppTheme.line),
+            boxShadow: AppTheme.softShadow,
           ),
           child: SizedBox(
-            height: 150,
+            height: 170,
             child: Row(
               children: [
                 ClipRRect(
@@ -451,13 +447,13 @@ class FoodListItem extends StatelessWidget {
                   child: Hero(
                     tag: heroTag,
                     child: SizedBox(
-                      width: 90,
-                      height: 150,
+                      width: 124,
+                      height: 170,
                       child: FoodImage(
                         imageUrls: [coverUrl],
                         cacheKey: 'recipe-${food.recipeId}',
                         cacheWidth: 360,
-                        cacheHeight: 520,
+                        cacheHeight: 560,
                       ),
                     ),
                   ),
@@ -687,38 +683,20 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.35),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ],
+      child: AppSurface(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.local_dining, size: 36, color: AppTheme.seedColor),
+            const SizedBox(height: 14),
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.center,
             ),
-            child: const Icon(
-              Icons.local_dining,
-              size: 40,
-              color: AppTheme.seedColor,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            message,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: const Color(0xFF475569),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -783,67 +761,61 @@ class _FilteringSpinnerDialogState extends State<_FilteringSpinnerDialog> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         child: Center(
-          child: Container(
+          child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 360),
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 22),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, 12),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 90,
-                  width: 90,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF8D6E53), Color(0xFFB65C45)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+            child: AppSurface(
+              color: AppTheme.surface,
+              borderRadius: AppTheme.radiusLarge,
+              shadow: AppTheme.softShadow,
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 22),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 90,
+                    width: 90,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF8D6E53), Color(0xFFB65C45)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 5,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        backgroundColor: Colors.white24,
+                      ),
                     ),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 5,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      backgroundColor: Colors.white24,
+                  const SizedBox(height: 18),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 420),
+                    transitionBuilder: (child, animation) =>
+                        FadeTransition(opacity: animation, child: child),
+                    child: Text(
+                      currentMessage,
+                      key: ValueKey<String>(currentMessage),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: Colors.blueGrey.shade900,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                ),
-                const SizedBox(height: 18),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 420),
-                  transitionBuilder: (child, animation) =>
-                      FadeTransition(opacity: animation, child: child),
-                  child: Text(
-                    currentMessage,
-                    key: ValueKey<String>(currentMessage),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: Colors.blueGrey.shade900,
+                  const SizedBox(height: 8),
+                  Text(
+                    'filteringDialogSubtitle'.tr(),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.blueGrey.shade600,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'filteringDialogSubtitle'.tr(),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.blueGrey.shade600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

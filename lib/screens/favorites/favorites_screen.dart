@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:yemek_tarifi_app/core/configs/router/app_routes.dart';
-import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/providers/favorites/favorites_viewmodel.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 import 'package:yemek_tarifi_app/widgets/favorites/favorite_food_list_item.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
 
@@ -59,54 +59,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.94),
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 18,
-                  offset: const Offset(0, 12),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.seedColor.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.favorite_border_rounded,
-                    size: 34,
-                    color: AppTheme.seedColor,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  'noFavoritesYet'.tr(),
-                  style: Theme.of(context).textTheme.titleLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'favoritesOfflineHintBody'.tr(),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 18),
-                ElevatedButton.icon(
-                  onPressed: () => context.push(AppRoutes.recipes),
-                  icon: const Icon(Icons.restaurant_menu_rounded),
-                  label: Text('startCooking'.tr()),
-                ),
-              ],
+          child: AppEmptyState(
+            icon: Icons.favorite_border_rounded,
+            title: 'noFavoritesYet'.tr(),
+            message: 'favoritesOfflineHintBody'.tr(),
+            action: ElevatedButton.icon(
+              onPressed: () => context.push(AppRoutes.recipes),
+              icon: const Icon(Icons.restaurant_menu_rounded),
+              label: Text('startCooking'.tr()),
             ),
           ),
         ),
@@ -165,20 +125,8 @@ class _OfflineInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
+    return AppSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -196,20 +144,9 @@ class _FavoriteLoadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: const Center(child: CircularProgressIndicator()),
+    return const AppSurface(
+      padding: EdgeInsets.symmetric(vertical: 24),
+      child: Center(child: AppLoadingIndicator()),
     );
   }
 }

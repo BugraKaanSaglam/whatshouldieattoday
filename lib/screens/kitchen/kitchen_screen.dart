@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yemek_tarifi_app/database/db_helper.dart';
 import 'package:yemek_tarifi_app/widgets/recipes/food_selection_helpers.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
 import 'package:yemek_tarifi_app/models/recipe/ingredient.dart';
 import 'package:yemek_tarifi_app/core/utils/form_decorations.dart';
@@ -125,19 +126,8 @@ class _KitchenScreenState extends State<KitchenScreen> {
   }
 
   Widget _buildActionCard(BuildContext context) {
-    return Container(
+    return AppSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 18,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -9,6 +9,7 @@ import 'package:yemek_tarifi_app/enums/language_enum.dart';
 import 'package:yemek_tarifi_app/global/app_globals.dart';
 import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
 
 typedef SettingsShareHandler =
@@ -195,43 +196,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String body,
     required Widget child,
   }) {
-    return Container(
+    return AppSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 18,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppTheme.seedColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: AppTheme.seedColor),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(body, style: Theme.of(context).textTheme.bodyMedium),
+          AppSectionHeader(icon: icon, title: title, description: body),
           const SizedBox(height: 18),
           child,
         ],

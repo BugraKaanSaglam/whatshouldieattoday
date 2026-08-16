@@ -5,6 +5,7 @@ import 'package:yemek_tarifi_app/core/network/backend_service.dart';
 import 'package:yemek_tarifi_app/core/utils/form_decorations.dart';
 import 'package:yemek_tarifi_app/global/app_theme.dart';
 import 'package:yemek_tarifi_app/widgets/app_scaffold.dart';
+import 'package:yemek_tarifi_app/widgets/app_surface.dart';
 import 'package:yemek_tarifi_app/widgets/main_app_bar.dart';
 
 class FeedbackScreen extends StatefulWidget {
@@ -168,19 +169,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   Widget _buildFormCard(BuildContext context) {
-    return Container(
+    return AppSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 18,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
